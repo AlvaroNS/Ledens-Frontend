@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ledens · Reformas sin sorpresas · Presupuesto cerrado y plazos por contrato</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Serif+Display:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --primary:#5567AE;
+  --dark:#435188;
+  --teal:#68C0B5;
+  --pink:#EC6090;
+  --text:#2C2C3A;
+  --muted:#6B7094;
+  --light:#f4f5fa;
+  --border:#E4E7F0;
+  --white:#fff;
+  --wa:#25D366;
+  --red:#D44455;
+  --green:#22B573;
+}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;color:var(--text);background:var(--white);-webkit-font-smoothing:antialiased;font-size:16px;line-height:1.6}
+.dev{background:#FFFBEB;border:2px dashed #F59E0B;border-radius:8px;padding:12px 16px;margin:12px 0;font-size:12px;color:#78350F;line-height:1.6}
+.dev::before{content:'⚙ NOTA DEV: ';font-weight:700;font-size:11px}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(255,255,255,.96);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);transition:box-shadow .2s}
+nav.scrolled{box-shadow:0 2px 20px rgba(0,0,0,.06)}
+.nav-inner{max-width:1160px;margin:0 auto;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.nav-logo{display:flex;align-items:center;gap:10px}
+.nav-logo-text{font-size:20px;font-weight:700;color:var(--dark);letter-spacing:1.5px}
+.nav-logo-dot{width:8px;height:8px;border-radius:50%;background:var(--teal)}
+.nav-logo-sub{font-size:11px;color:var(--muted);border-left:1px solid var(--border);padding-left:10px;letter-spacing:.3px}
+.nav-actions{display:flex;align-items:center;gap:10px}
+.nav-tel{font-size:14px;font-weight:500;color:var(--primary);text-decoration:none;padding:8px 16px;border:1px solid var(--border);border-radius:8px;transition:all .15s}
+.nav-tel:hover{border-color:var(--primary);background:var(--light)}
+.nav-wa{display:flex;align-items:center;gap:8px;background:var(--wa);color:#fff;border:none;padding:10px 20px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s;text-decoration:none}
+.nav-wa:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(37,211,102,.3)}
+.nav-wa svg{width:17px;height:17px;fill:#fff;flex-shrink:0}
+.hero{background:var(--white);padding:120px 24px 80px;overflow:hidden;position:relative}
+.hero::before{content:'';position:absolute;top:0;right:0;width:55%;height:100%;background:linear-gradient(135deg,var(--light) 0%,rgba(104,192,181,.06) 100%);border-radius:0 0 0 120px;pointer-events:none}
+.hero-inner{max-width:1160px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center;position:relative;z-index:1}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(85,103,174,.07);border:1px solid rgba(85,103,174,.15);padding:6px 14px;border-radius:24px;font-size:12px;font-weight:600;color:var(--primary);margin-bottom:24px;letter-spacing:.5px}
+.hero-badge-dot{width:6px;height:6px;border-radius:50%;background:var(--teal);animation:blink 2s ease-in-out infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.hero h1{font-family:'DM Serif Display',serif;font-size:50px;color:var(--text);line-height:1.12;font-weight:400;margin-bottom:20px}
+.hero h1 em{font-style:italic;color:var(--primary)}
+.hero h1 strong{font-style:normal;font-weight:400;color:var(--teal);display:block}
+.hero-sub{font-size:18px;color:var(--muted);line-height:1.7;margin-bottom:36px;max-width:480px}
+.hero-ctas{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:40px}
+.btn-primary{display:inline-flex;align-items:center;gap:10px;background:var(--primary);color:#fff;border:none;padding:15px 28px;border-radius:10px;font-size:16px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s;text-decoration:none}
+.btn-primary:hover{background:var(--dark);transform:translateY(-1px);box-shadow:0 6px 24px rgba(85,103,174,.3)}
+.btn-primary svg{width:20px;height:20px;fill:#fff}
+.btn-ghost{display:inline-flex;align-items:center;gap:8px;background:transparent;color:var(--muted);border:1px solid var(--border);padding:15px 24px;border-radius:10px;font-size:16px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s;text-decoration:none}
+.btn-ghost:hover{border-color:var(--primary);color:var(--primary)}
+.hero-trust{display:flex;gap:20px;flex-wrap:wrap}
+.trust-item{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:500;color:var(--muted)}
+.trust-check{width:18px;height:18px;border-radius:50%;background:var(--teal);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.trust-check svg{width:10px;height:10px;fill:#fff}
+.hero-visual{position:relative}
+.hero-img{width:100%;aspect-ratio:4/5;border-radius:20px;background:linear-gradient(135deg,rgba(85,103,174,.08),rgba(104,192,181,.06));border:1px solid var(--border);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;color:var(--muted);font-size:13px;overflow:hidden;position:relative}
+.hero-img-icon{font-size:44px;opacity:.25}
+.hero-img-text{text-align:center;line-height:1.5;max-width:180px;color:var(--muted);opacity:.7}
+.hero-float{position:absolute;background:var(--white);border:1px solid var(--border);border-radius:14px;padding:14px 18px;box-shadow:0 8px 32px rgba(0,0,0,.08);display:flex;align-items:center;gap:12px}
+.hero-float-1{bottom:28px;left:-24px}
+.hero-float-2{top:32px;right:-16px}
+.float-icon{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.float-icon-teal{background:rgba(104,192,181,.12)}
+.float-icon-primary{background:rgba(85,103,174,.1)}
+.float-num{font-size:20px;font-weight:700;color:var(--text);line-height:1}
+.float-label{font-size:11px;color:var(--muted);margin-top:2px}
+.proof-strip{background:var(--primary);padding:20px 24px}
+.proof-inner{max-width:1160px;margin:0 auto;display:flex;align-items:center;justify-content:center;gap:40px;flex-wrap:wrap}
+.proof-item{display:flex;align-items:center;gap:10px;color:#fff}
+.proof-sep{width:1px;height:24px;background:rgba(255,255,255,.2)}
+.proof-num{font-size:22px;font-weight:700;color:#fff}
+.proof-text{font-size:13px;color:rgba(255,255,255,.75);line-height:1.3}
+section{padding:80px 24px}
+.section-inner{max-width:1160px;margin:0 auto}
+.eyebrow{font-size:11px;font-weight:700;color:var(--primary);letter-spacing:3px;text-transform:uppercase;margin-bottom:10px}
+.section-title{font-family:'DM Serif Display',serif;font-size:38px;line-height:1.2;font-weight:400;margin-bottom:14px;color:var(--text)}
+.section-title em{font-style:italic;color:var(--primary)}
+.section-sub{font-size:16px;color:var(--muted);line-height:1.7;margin-bottom:48px;max-width:560px}
+.dolor-section{background:var(--white)}
+.dolor-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;border-radius:16px;overflow:hidden;border:1px solid var(--border);margin-bottom:40px}
+.dolor-card{background:var(--white);padding:32px 28px;position:relative;transition:background .2s}
+.dolor-card:hover{background:var(--light)}
+.dolor-card+.dolor-card{border-left:1px solid var(--border)}
+.dolor-stripe{height:4px;background:var(--red);opacity:.35;position:absolute;top:0;left:0;right:0;border-radius:0}
+.dolor-num{font-size:52px;font-weight:800;color:rgba(212,68,85,.06);position:absolute;bottom:12px;right:16px;line-height:1;font-family:'DM Serif Display',serif}
+.dolor-icon{font-size:28px;margin-bottom:14px;display:block}
+.dolor-title{font-size:16px;font-weight:600;color:var(--text);margin-bottom:8px}
+.dolor-text{font-size:14px;color:var(--muted);line-height:1.65;font-style:italic}
+.dolor-bottom{text-align:center;font-size:15px;color:var(--muted);padding:20px;background:var(--light);border-radius:12px;line-height:1.6}
+.dolor-bottom strong{color:var(--primary);font-weight:600}
+.pilares-section{background:var(--light)}
+.pilares-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.pilar{background:var(--white);border:1px solid var(--border);border-radius:16px;padding:32px 28px;position:relative;overflow:hidden;transition:all .25s}
+.pilar:hover{transform:translateY(-4px);box-shadow:0 12px 40px rgba(85,103,174,.1)}
+.pilar-accent{position:absolute;top:0;left:0;right:0;height:4px}
+.pilar-icon{width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:20px}
+.pilar-icon-1{background:rgba(85,103,174,.08)}
+.pilar-icon-2{background:rgba(104,192,181,.1)}
+.pilar-icon-3{background:rgba(34,181,115,.08)}
+.pilar-title{font-size:18px;font-weight:600;color:var(--text);margin-bottom:8px}
+.pilar-text{font-size:14px;color:var(--muted);line-height:1.7}
+.pilar-tag{margin-top:16px;display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--teal);background:rgba(104,192,181,.08);padding:4px 12px;border-radius:20px;border:1px solid rgba(104,192,181,.2)}
+.proceso-section{background:var(--white)}
+.proceso-grid{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center}
+.proceso-steps{display:flex;flex-direction:column;gap:0;position:relative}
+.proceso-steps::before{content:'';position:absolute;left:23px;top:44px;bottom:44px;width:2px;background:linear-gradient(var(--primary),var(--teal))}
+.proceso-step{display:flex;gap:20px;position:relative;padding-bottom:28px}
+.proceso-step:last-child{padding-bottom:0}
+.proceso-dot{width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;flex-shrink:0;color:#fff;position:relative;z-index:1}
+.dot-1{background:var(--primary)}
+.dot-2{background:#4A5DA0}
+.dot-3{background:var(--teal)}
+.dot-4{background:var(--green)}
+.proceso-content{}
+.proceso-tag{font-size:11px;font-weight:600;color:var(--teal);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}
+.proceso-title{font-size:17px;font-weight:600;color:var(--text);margin-bottom:4px}
+.proceso-text{font-size:14px;color:var(--muted);line-height:1.6}
+.proceso-visual{background:var(--light);border-radius:20px;padding:32px;display:flex;flex-direction:column;gap:14px}
+.proc-card{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:16px 20px;display:flex;align-items:center;gap:14px}
+.proc-card-icon{width:40px;height:40px;border-radius:10px;background:rgba(85,103,174,.07);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.proc-card-title{font-size:14px;font-weight:600;color:var(--text)}
+.proc-card-sub{font-size:12px;color:var(--muted);margin-top:2px}
+.proc-highlight{background:var(--primary);border-radius:12px;padding:16px 20px;color:#fff;text-align:center}
+.proc-highlight-num{font-size:32px;font-weight:700;color:#fff;line-height:1}
+.proc-highlight-label{font-size:13px;color:rgba(255,255,255,.7);margin-top:4px}
+.ad-section{background:var(--light)}
+.ad-container{display:grid;grid-template-columns:1fr 52px 1fr;gap:0;align-items:center;margin-bottom:32px;border-radius:16px;overflow:hidden;border:1px solid var(--border)}
+.ad-box{aspect-ratio:16/10;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;position:relative}
+.ad-antes{background:linear-gradient(135deg,#f0edf5,#e8e4f0)}
+.ad-despues{background:linear-gradient(135deg,rgba(104,192,181,.08),rgba(34,181,115,.06))}
+.ad-label{position:absolute;top:16px;left:16px;font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:5px 12px;border-radius:6px}
+.ad-label-antes{background:rgba(212,68,85,.1);color:var(--red)}
+.ad-label-despues{background:rgba(34,181,115,.12);color:var(--green)}
+.ad-placeholder{font-size:13px;color:var(--muted);text-align:center;line-height:1.5;max-width:200px}
+.ad-placeholder-icon{font-size:36px;opacity:.25;display:block;margin-bottom:8px}
+.ad-arrow-col{background:var(--white);display:flex;align-items:center;justify-content:center;border-left:1px solid var(--border);border-right:1px solid var(--border)}
+.ad-arrow{width:40px;height:40px;border-radius:50%;background:var(--primary);display:flex;align-items:center;justify-content:center;color:#fff;font-size:18px}
+.ad-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.ad-stat{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:20px;text-align:center}
+.ad-stat-num{font-size:26px;font-weight:700;color:var(--primary);line-height:1}
+.ad-stat-label{font-size:12px;color:var(--muted);margin-top:5px;line-height:1.3}
+.testimonial-section{background:var(--white)}
+.testimonial-wrap{max-width:720px;margin:0 auto;background:var(--light);border-radius:20px;padding:48px;position:relative}
+.testimonial-wrap::before{content:'\201C';font-family:'DM Serif Display',serif;font-size:96px;color:var(--teal);opacity:.25;position:absolute;top:8px;left:28px;line-height:1}
+.testimonial-quote{font-family:'DM Serif Display',serif;font-size:22px;font-style:italic;color:var(--text);line-height:1.6;margin-bottom:28px;position:relative;z-index:1}
+.testimonial-author{display:flex;align-items:center;gap:14px}
+.testimonial-avatar{width:48px;height:48px;border-radius:50%;background:var(--primary);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:16px;flex-shrink:0}
+.testimonial-name{font-size:15px;font-weight:600;color:var(--text)}
+.testimonial-role{font-size:13px;color:var(--muted)}
+.stars{color:#F59E0B;font-size:16px;margin-bottom:4px}
+.cta-section{background:linear-gradient(135deg,var(--dark),var(--primary));padding:80px 24px;text-align:center;position:relative;overflow:hidden}
+.cta-section::before{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:700px;height:700px;border-radius:50%;background:radial-gradient(rgba(104,192,181,.08),transparent 65%);pointer-events:none}
+.cta-inner{max-width:600px;margin:0 auto;position:relative;z-index:1}
+.cta-eyebrow{font-size:11px;font-weight:600;color:rgba(255,255,255,.5);letter-spacing:3px;text-transform:uppercase;margin-bottom:12px}
+.cta-title{font-family:'DM Serif Display',serif;font-size:42px;color:#fff;margin-bottom:16px;line-height:1.2;font-weight:400}
+.cta-title em{font-style:italic;color:var(--teal)}
+.cta-sub{font-size:17px;color:rgba(255,255,255,.65);line-height:1.7;margin-bottom:40px}
+.cta-wa{display:inline-flex;align-items:center;gap:12px;background:var(--wa);color:#fff;border:none;padding:18px 36px;border-radius:12px;font-size:18px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s;box-shadow:0 4px 32px rgba(37,211,102,.25);text-decoration:none}
+.cta-wa:hover{transform:translateY(-2px);box-shadow:0 8px 40px rgba(37,211,102,.4)}
+.cta-wa svg{width:24px;height:24px;fill:#fff}
+.cta-note{font-size:13px;color:rgba(255,255,255,.4);margin-top:16px}
+footer{background:var(--text);padding:40px 24px;text-align:center}
+.footer-logo{font-size:18px;font-weight:700;color:#fff;letter-spacing:2px;margin-bottom:8px}
+.footer-logo span{color:var(--teal)}
+.footer-links{display:flex;gap:24px;justify-content:center;margin-bottom:16px}
+.footer-links a{font-size:13px;color:rgba(255,255,255,.4);text-decoration:none;transition:color .15s}
+.footer-links a:hover{color:rgba(255,255,255,.8)}
+.footer-text{font-size:12px;color:rgba(255,255,255,.25)}
+.wa-float{position:fixed;bottom:28px;right:28px;z-index:99;width:58px;height:58px;border-radius:50%;background:var(--wa);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 24px rgba(37,211,102,.4);cursor:pointer;transition:all .2s;animation:float 3.5s ease-in-out infinite;text-decoration:none}
+.wa-float:hover{transform:scale(1.1)}
+.wa-float svg{width:28px;height:28px;fill:#fff}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+@media(max-width:900px){
+  .hero-inner,.proceso-grid{grid-template-columns:1fr}
+  .hero h1{font-size:38px}
+  .hero-visual{display:none}
+  .dolor-grid,.pilares-grid{grid-template-columns:1fr}
+  .dolor-card+.dolor-card{border-left:none;border-top:1px solid var(--border)}
+  .section-title{font-size:30px}
+  .ad-container{grid-template-columns:1fr;border-radius:16px}
+  .ad-arrow-col{display:none}
+  .ad-stats{grid-template-columns:1fr 1fr}
+  .proof-inner{gap:20px}
+  .proof-sep{display:none}
+  .cta-title{font-size:32px}
+  .nav-logo-sub{display:none}
+  .nav-tel{display:none}
+}
+@media(max-width:480px){
+  .hero h1{font-size:30px}
+  .hero-ctas{flex-direction:column}
+  .btn-primary,.btn-ghost{width:100%;justify-content:center}
+  .proof-inner{flex-direction:column;gap:14px;text-align:center}
+}
+</style>
+</head>
+<body>
+<nav id="navbar">
+  <div class="nav-inner">
+    <div class="nav-logo">
+      <div class="nav-logo-text">LEDENS</div>
+      <div class="nav-logo-dot"></div>
+      <div class="nav-logo-sub">Reformas sin sorpresas</div>
+    </div>
+    <div class="nav-actions">
+      <a class="nav-tel" href="tel:+34XXXXXXXXX">📞 Llamar</a>
+      <a class="nav-wa" href="https://wa.me/34XXXXXXXXX?text=Hola, quiero información sobre una reforma" target="_blank">
+        <svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.625.846 5.059 2.284 7.034L.789 23.492a.5.5 0 00.611.611l4.458-1.495A11.952 11.952 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-2.359 0-4.543-.809-6.272-2.164l-.438-.349-3.165 1.061 1.061-3.165-.349-.438A9.956 9.956 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>
+        Escríbenos
+      </a>
+    </div>
+  </div>
+</nav>
+<section class="hero">
+  <div class="hero-inner">
+    <div class="hero-content">
+      <div class="hero-badge"><span class="hero-badge-dot"></span>Reformas · Presupuesto cerrado</div>
+      <h1>Tu última reforma<br>fue <em>un desastre.</em><br><strong>La siguiente no tiene que serlo.</strong></h1>
+      <p class="hero-sub">En Ledens reformamos con presupuesto cerrado, plazos por contrato y un único interlocutor de principio a fin. Tú solo decides cómo quieres tu espacio.</p>
+      <div class="hero-ctas">
+        <a class="btn-primary" href="https://wa.me/34XXXXXXXXX?text=Hola, quiero información sobre una reforma" target="_blank">
+          <svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.625.846 5.059 2.284 7.034L.789 23.492a.5.5 0 00.611.611l4.458-1.495A11.952 11.952 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-2.359 0-4.543-.809-6.272-2.164l-.438-.349-3.165 1.061 1.061-3.165-.349-.438A9.956 9.956 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>
+          Cuéntanos tu proyecto
+        </a>
+        <a class="btn-ghost" href="#proceso">Ver cómo funciona ↓</a>
+      </div>
+      <div class="hero-trust">
+        <div class="trust-item"><div class="trust-check"><svg viewBox="0 0 10 10"><path d="M2 5l2.5 2.5L8 3"/></svg></div>Presupuesto cerrado</div>
+        <div class="trust-item"><div class="trust-check"><svg viewBox="0 0 10 10"><path d="M2 5l2.5 2.5L8 3"/></svg></div>Plazos por contrato</div>
+        <div class="trust-item"><div class="trust-check"><svg viewBox="0 0 10 10"><path d="M2 5l2.5 2.5L8 3"/></svg></div>Sin intermediarios</div>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div class="hero-img"><span class="hero-img-icon">🏠</span><div class="hero-img-text">Foto de reforma terminada<br>(la mejor que tengáis)</div></div>
+      <div class="hero-float hero-float-1"><div class="float-icon float-icon-teal">✓</div><div><div class="float-num">100%</div><div class="float-label">reformas en plazo</div></div></div>
+      <div class="hero-float hero-float-2"><div class="float-icon float-icon-primary">📋</div><div><div class="float-num">0€</div><div class="float-label">extras no pactados</div></div></div>
+    </div>
+  </div>
+</section>
+<div class="dev">Sustituir el placeholder del hero por la mejor foto de reforma terminada que tenga Ledens. Formato vertical 4:5. Los datos "100% en plazo" y "0€ extras" deben ser reales — confirmar con Álvaro.</div>
+<div class="proof-strip">
+  <div class="proof-inner">
+    <div class="proof-item"><div><div class="proof-num">100%</div><div class="proof-text">reformas entregadas<br>en el plazo acordado</div></div></div>
+    <div class="proof-sep"></div>
+    <div class="proof-item"><div><div class="proof-num">0€</div><div class="proof-text">extras no pactados<br>en ningún proyecto</div></div></div>
+    <div class="proof-sep"></div>
+    <div class="proof-item"><div><div class="proof-num">1</div><div class="proof-text">interlocutor único<br>de principio a fin</div></div></div>
+    <div class="proof-sep"></div>
+    <div class="proof-item"><div><div class="proof-num">&lt;48h</div><div class="proof-text">tiempo de respuesta<br>tras tu consulta</div></div></div>
+  </div>
+</div>
+<div class="dev">Proof strip: confirmar que los 4 datos son reales. Si "100% en plazo" no es verificable aún, sustituir por el número de proyectos completados.</div>
+<section class="dolor-section" id="dolor">
+  <div class="section-inner">
+    <div class="eyebrow">El problema</div>
+    <div class="section-title">Lo que todos hemos vivido<br>con las <em>reformas.</em></div>
+    <div class="section-sub">Estos son los 3 miedos que más escuchamos antes de contratar una reforma. Si te suenan, estás en el sitio correcto.</div>
+    <div class="dolor-grid">
+      <div class="dolor-card"><div class="dolor-stripe"></div><span class="dolor-icon">💸</span><div class="dolor-title">Presupuestos que se disparan</div><div class="dolor-text">"Me dijeron 20.000€ y acabé pagando 35.000€. Cada semana había un extra que no estaba previsto."</div><div class="dolor-num">01</div></div>
+      <div class="dolor-card"><div class="dolor-stripe"></div><span class="dolor-icon">📅</span><div class="dolor-title">Plazos que nadie cumple</div><div class="dolor-text">"Iban a ser 2 meses. Fueron 5. Estuve viviendo en casa de mis padres con mis hijos."</div><div class="dolor-num">02</div></div>
+      <div class="dolor-card"><div class="dolor-stripe"></div><span class="dolor-icon">🤷</span><div class="dolor-title">Nadie se responsabiliza</div><div class="dolor-text">"El fontanero culpaba al albañil, el albañil al electricista. Y yo en medio llamando a todos sin resultado."</div><div class="dolor-num">03</div></div>
+    </div>
+    <div class="dolor-bottom">Si esto te suena, <strong>Ledens existe exactamente para resolverlo.</strong></div>
+  </div>
+</section>
+<section class="pilares-section">
+  <div class="section-inner">
+    <div class="eyebrow">La solución</div>
+    <div class="section-title">Tres compromisos que<br><em>cambian las reglas.</em></div>
+    <div class="section-sub">Los firmamos por contrato antes de tocar una sola pared. Sin letra pequeña.</div>
+    <div class="pilares-grid">
+      <div class="pilar"><div class="pilar-accent" style="background:var(--primary)"></div><div class="pilar-icon pilar-icon-1">📋</div><div class="pilar-title">Presupuesto cerrado</div><div class="pilar-text">El precio que acordamos es el que pagas. Sin extras, sin sorpresas, sin "esto no estaba incluido". Lo firmamos antes de empezar.</div><div class="pilar-tag"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="#68C0B5" stroke-width="1.5" stroke-linecap="round"/></svg>Por contrato</div></div>
+      <div class="pilar"><div class="pilar-accent" style="background:var(--teal)"></div><div class="pilar-icon pilar-icon-2">📅</div><div class="pilar-title">Plazos garantizados</div><div class="pilar-text">Nos comprometemos por escrito a la fecha de entrega. Si nos retrasamos, es nuestra responsabilidad, no la tuya.</div><div class="pilar-tag" style="color:var(--primary);background:rgba(85,103,174,.07);border-color:rgba(85,103,174,.15)"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="#5567AE" stroke-width="1.5" stroke-linecap="round"/></svg>Por contrato</div></div>
+      <div class="pilar"><div class="pilar-accent" style="background:var(--green)"></div><div class="pilar-icon pilar-icon-3">📱</div><div class="pilar-title">Control en tiempo real</div><div class="pilar-text">Fotos semanales de la obra, estado del proyecto y presupuesto actualizado. Sabes qué pasa en tu casa sin tener que llamar a nadie.</div><div class="pilar-tag" style="color:#22B573;background:rgba(34,181,115,.07);border-color:rgba(34,181,115,.15)"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="#22B573" stroke-width="1.5" stroke-linecap="round"/></svg>Tecnología propia</div></div>
+    </div>
+  </div>
+</section>
+<div class="dev">Pilares: confirmar con Álvaro que los 3 compromisos son reales y firmables. Si "control en tiempo real" aún no está operativo, cambiar el tag a "Próximamente".</div>
+<section class="proceso-section" id="proceso">
+  <div class="section-inner">
+    <div class="eyebrow">Cómo funciona</div>
+    <div class="section-title">De "quiero reformar"<br>a <em>"esto es exactamente lo que pedí."</em></div>
+    <div style="margin-bottom:48px"></div>
+    <div class="proceso-grid">
+      <div class="proceso-steps">
+        <div class="proceso-step"><div class="proceso-dot dot-1">1</div><div class="proceso-content"><div class="proceso-tag">Día 1</div><div class="proceso-title">Cuéntanos qué necesitas</div><div class="proceso-text">Nos escribes por WhatsApp o nos llamas. Te escuchamos y te decimos si podemos ayudarte. Sin compromiso, sin visita obligatoria.</div></div></div>
+        <div class="proceso-step"><div class="proceso-dot dot-2">2</div><div class="proceso-content"><div class="proceso-tag">Semana 1</div><div class="proceso-title">Visitamos y presupuestamos</div><div class="proceso-text">Vamos a ver el espacio y te damos un presupuesto cerrado. Lo que acordamos es lo que pagas. Sin letra pequeña.</div></div></div>
+        <div class="proceso-step"><div class="proceso-dot dot-3">3</div><div class="proceso-content"><div class="proceso-tag">Ejecución</div><div class="proceso-title">Reformamos con control total</div><div class="proceso-text">Gestionamos la obra de principio a fin. Tú recibes actualizaciones semanales sin tener que estar encima de nadie.</div></div></div>
+        <div class="proceso-step"><div class="proceso-dot dot-4">4</div><div class="proceso-content"><div class="proceso-tag">Entrega</div><div class="proceso-title">Tu espacio, transformado</div><div class="proceso-text">En la fecha acordada. Sin dramas, sin perseguir a nadie, sin sustos en la factura final.</div></div></div>
+      </div>
+      <div class="proceso-visual">
+        <div class="proc-card"><div class="proc-card-icon">💬</div><div><div class="proc-card-title">Respondemos en menos de 48h</div><div class="proc-card-sub">WhatsApp o llamada directa</div></div></div>
+        <div class="proc-card"><div class="proc-card-icon">📐</div><div><div class="proc-card-title">Visita y presupuesto en 1 semana</div><div class="proc-card-sub">Sin compromiso hasta que firmes</div></div></div>
+        <div class="proc-card"><div class="proc-card-icon">🔑</div><div><div class="proc-card-title">Un único interlocutor</div><div class="proc-card-sub">El mismo desde la visita hasta la entrega</div></div></div>
+        <div class="proc-highlight"><div class="proc-highlight-num">0</div><div class="proc-highlight-label">sorpresas en la factura final</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+<div class="dev">Proceso: los tiempos son orientativos. Confirmar con Álvaro los tiempos reales de respuesta (¿menos de 48h o menos de 24h?) y cuándo se puede hacer la visita normalmente.</div>
+<section class="ad-section">
+  <div class="section-inner">
+    <div class="eyebrow">Resultados reales</div>
+    <div class="section-title" style="margin-bottom:8px">Esto es lo que hacemos.<br><em>Sin filtros.</em></div>
+    <div class="section-sub">Una reforma real, con datos reales. Así trabajamos.</div>
+    <div class="ad-container">
+      <div class="ad-box ad-antes"><div class="ad-label ad-label-antes">Antes</div><span class="ad-placeholder-icon">📷</span><div class="ad-placeholder">Foto real del ANTES<br>de la reforma</div></div>
+      <div class="ad-arrow-col"><div class="ad-arrow">→</div></div>
+      <div class="ad-box ad-despues"><div class="ad-label ad-label-despues">Después</div><span class="ad-placeholder-icon">✨</span><div class="ad-placeholder">Foto real del DESPUÉS<br>de la reforma</div></div>
+    </div>
+    <div class="ad-stats">
+      <div class="ad-stat"><div class="ad-stat-num">[X] m²</div><div class="ad-stat-label">Superficie reformada</div></div>
+      <div class="ad-stat"><div class="ad-stat-num">[X] sem.</div><div class="ad-stat-label">Tiempo de obra</div></div>
+      <div class="ad-stat"><div class="ad-stat-num">[X]€</div><div class="ad-stat-label">Presupuesto cerrado</div></div>
+      <div class="ad-stat"><div class="ad-stat-num" style="color:var(--green)">0€</div><div class="ad-stat-label">Extras o sobrecostes</div></div>
+    </div>
+  </div>
+</section>
+<div class="dev">Antes/Después: sección más importante de la landing. Necesita: fotos del antes, fotos del después, m², semanas de obra y presupuesto final. Si hay varios casos, hacer carrusel.</div>
+<section class="testimonial-section" style="text-align:center">
+  <div class="section-inner">
+    <div class="eyebrow">Lo dicen ellos</div>
+    <div class="section-title" style="margin-bottom:40px">La opinión que más <em>importa.</em></div>
+    <div class="testimonial-wrap">
+      <div class="stars">★★★★★</div>
+      <div class="testimonial-quote">"[Testimonio real del cliente aquí. Ejemplo: «Después de mi experiencia anterior, no me fiaba de nadie. Con Ledens fue completamente diferente: el presupuesto no se movió ni un euro y terminaron antes de la fecha.»]"</div>
+      <div class="testimonial-author"><div class="testimonial-avatar">?</div><div><div class="testimonial-name">[Nombre del cliente]</div><div class="testimonial-role">[Tipo de reforma] · [Ciudad] · [Año]</div></div></div>
+    </div>
+  </div>
+</section>
+<div class="dev">Testimonio: un screenshot de WhatsApp con permiso del cliente vale. Ideal: nombre, tipo de reforma, ciudad y año. Si no hay testimonio, quitar esta sección hasta tenerlo.</div>
+<section class="cta-section">
+  <div class="cta-inner">
+    <div class="cta-eyebrow">Da el primer paso</div>
+    <div class="cta-title">¿Tienes un proyecto <em>en mente?</em></div>
+    <p class="cta-sub">Cuéntanos qué necesitas y te decimos si podemos ayudarte. Sin compromiso, sin presión, sin letra pequeña.</p>
+    <a class="cta-wa" href="https://wa.me/34XXXXXXXXX?text=Hola, quiero información sobre una reforma" target="_blank">
+      <svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.625.846 5.059 2.284 7.034L.789 23.492a.5.5 0 00.611.611l4.458-1.495A11.952 11.952 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-2.359 0-4.543-.809-6.272-2.164l-.438-.349-3.165 1.061 1.061-3.165-.349-.438A9.956 9.956 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>
+      Escríbenos por WhatsApp
+    </a>
+    <p class="cta-note">Respondemos en menos de 48h · Sin compromiso</p>
+  </div>
+</section>
+<div class="dev">CTA: sustituir "34XXXXXXXXX" por el número real de WhatsApp Business de Ledens en todos los enlaces. Son 5 apariciones en total.</div>
+<footer>
+  <div class="footer-logo">LEDENS <span>reformas</span></div>
+  <div class="footer-links"><a href="#">Política de privacidad</a><a href="#">Aviso legal</a><a href="#">Contacto</a></div>
+  <div class="footer-text">© 2026 Ledens. Compradores directos de inmuebles · Reformas sin sorpresas.</div>
+</footer>
+<a class="wa-float" href="https://wa.me/34XXXXXXXXX?text=Hola, quiero información sobre una reforma" target="_blank" aria-label="WhatsApp">
+  <svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.625.846 5.059 2.284 7.034L.789 23.492a.5.5 0 00.611.611l4.458-1.495A11.952 11.952 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-2.359 0-4.543-.809-6.272-2.164l-.438-.349-3.165 1.061 1.061-3.165-.349-.438A9.956 9.956 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>
+</a>
+<script>
+window.addEventListener('scroll', () => {
+  document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 20);
+});
+</script>
+</body>
+</html>

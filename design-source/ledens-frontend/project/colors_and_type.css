@@ -1,0 +1,237 @@
+/* =========================================================================
+ * Ledens — Colors & Typography tokens
+ * Source: /uploads/Brandbook_Ledens.pdf + Figma (Task Flow.fig)
+ * ========================================================================= */
+
+/* Fonts — DM Sans (primary) and Manrope (complementary).
+   Note: The Brandbook names "Californian FB" as the complementary family,
+   but the user explicitly overrode that with Manrope.
+
+   Manrope is self-hosted from fonts/ (static weights 200–800).
+   DM Sans is still loaded from Google Fonts — swap this @import for a local
+   @font-face rule if/when the user uploads the DM Sans TTFs.
+
+   Paths below are relative to THIS stylesheet. When colors_and_type.css is
+   imported from a subfolder (e.g. preview/*.html via "../colors_and_type.css"),
+   the browser resolves url() against the CSS file, not the HTML — so these
+   relative paths Just Work™.
+*/
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;700&display=swap");
+
+@font-face { font-family:"Manrope"; src:url("fonts/Manrope-ExtraLight.ttf") format("truetype"); font-weight:200; font-style:normal; font-display:swap; }
+@font-face { font-family:"Manrope"; src:url("fonts/Manrope-Light.ttf")      format("truetype"); font-weight:300; font-style:normal; font-display:swap; }
+@font-face { font-family:"Manrope"; src:url("fonts/Manrope-Regular.ttf")    format("truetype"); font-weight:400; font-style:normal; font-display:swap; }
+@font-face { font-family:"Manrope"; src:url("fonts/Manrope-Medium.ttf")     format("truetype"); font-weight:500; font-style:normal; font-display:swap; }
+@font-face { font-family:"Manrope"; src:url("fonts/Manrope-SemiBold.ttf")   format("truetype"); font-weight:600; font-style:normal; font-display:swap; }
+@font-face { font-family:"Manrope"; src:url("fonts/Manrope-Bold.ttf")       format("truetype"); font-weight:700; font-style:normal; font-display:swap; }
+@font-face { font-family:"Manrope"; src:url("fonts/Manrope-ExtraBold.ttf")  format("truetype"); font-weight:800; font-style:normal; font-display:swap; }
+
+:root {
+  /* -------------------------------------------------------------------
+   * BRAND CORE PALETTE (Brandbook §3.1 — "Paleta corporativa")
+   *   Azul   #5567AE  — primary, trust/institutional
+   *   Rosa   #EC6090  — action, energy, CTA
+   *   Verde  #68C0B5  — secondary accent, confirmation
+   * ------------------------------------------------------------------- */
+  --ledens-blue:       #5567AE;
+  --ledens-blue-600:   #4A5A9B;   /* hover / pressed primary */
+  --ledens-blue-700:   #3E4D85;
+  --ledens-blue-100:   #E3E7F3;   /* tint surfaces */
+  --ledens-blue-050:   #F2F4FA;
+
+  --ledens-pink:       #EC6090;
+  --ledens-pink-600:   #D95383;
+  --ledens-pink-700:   #B84371;
+  --ledens-pink-100:   #FBE0EA;
+  --ledens-pink-050:   #FDF0F4;
+
+  --ledens-teal:       #68C0B5;
+  --ledens-teal-600:   #55A89D;
+  --ledens-teal-700:   #437F77;
+  --ledens-teal-100:   #DEF3F0;
+  --ledens-teal-050:   #EEF9F7;
+
+  /* Deep brand navy seen in Figma metadata (rgb(12,6,43) / rgb(19,15,43)).
+     Used for dense headings on light surfaces. */
+  --ledens-navy:       #0C062B;
+  --ledens-navy-900:   #130F2B;
+
+  /* -------------------------------------------------------------------
+   * NEUTRALS (Brandbook §3.2 — "Paleta neutra")
+   *   Near-black #1D1D1B is the brand neutral ink.
+   * ------------------------------------------------------------------- */
+  --ink:               #1D1D1B;
+  --ink-700:           #3A3A38;
+  --ink-500:           #6B6B68;
+  --ink-400:           #9A9A96;
+  --ink-300:           #CFC0C0; /* from Figma stroke rgb(207,192,192) */
+  --ink-200:           #D9D9D9; /* from Figma fill  rgb(217,217,217) */
+  --ink-100:           #EDEDEA;
+  --ink-050:           #F7F7F5;
+  --paper:             #FFFFFF;
+
+  /* -------------------------------------------------------------------
+   * SEMANTIC TOKENS — map foundation colors to roles.
+   * ------------------------------------------------------------------- */
+  --bg:                var(--paper);
+  --bg-muted:          var(--ink-050);
+  --bg-inverse:        var(--ledens-blue);
+
+  --fg1:               var(--ink);        /* primary text */
+  --fg2:               var(--ink-700);    /* secondary text */
+  --fg3:               var(--ink-500);    /* tertiary / meta */
+  --fg-brand:          var(--ledens-blue);
+  --fg-on-brand:       var(--paper);
+  --fg-accent:         var(--ledens-pink);
+
+  --border:            var(--ink-200);
+  --border-strong:     var(--ink-300);
+  --border-brand:      var(--ledens-blue);
+
+  --surface:           var(--paper);
+  --surface-raised:    var(--paper);
+  --surface-sunken:    var(--ink-050);
+  --surface-brand:     var(--ledens-blue);
+  --surface-brand-soft:var(--ledens-blue-050);
+  --surface-accent:    var(--ledens-pink);
+
+  --action-primary:       var(--ledens-blue);
+  --action-primary-hover: var(--ledens-blue-600);
+  --action-primary-press: var(--ledens-blue-700);
+  --action-accent:        var(--ledens-pink);
+  --action-accent-hover:  var(--ledens-pink-600);
+
+  --success: var(--ledens-teal-600);
+  --warning: #E0A94A;
+  --danger:  #D14A4A;
+
+  /* -------------------------------------------------------------------
+   * TYPOGRAPHY
+   *   Primary:       DM Sans  (Brandbook §4.1)
+   *   Complementary: Manrope  (user override — Brandbook originally said Californian FB)
+   * ------------------------------------------------------------------- */
+  --font-sans:    "DM Sans", system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+  --font-accent:  "Manrope", "DM Sans", system-ui, sans-serif;
+
+  /* Type scale — anchored in the Brandbook's H1/H2/Body specs and
+     extended up for the Figma landing (60–63px hero) and down for UI. */
+  --fs-display:  clamp(48px, 6vw, 72px);
+  --fs-h1:       clamp(32px, 3.5vw, 44px);
+  --fs-h2:       26px;
+  --fs-h3:       22px;
+  --fs-body-lg:  18px;
+  --fs-body:     16px;
+  --fs-body-sm:  14px;
+  --fs-caption:  12px;
+  --fs-eyebrow:  14px;   /* ALL-CAPS nav items */
+
+  --lh-tight:    1.0;    /* Figma headings all use 100% line-height */
+  --lh-snug:     1.15;
+  --lh-normal:   1.4;
+  --lh-relaxed:  1.6;
+
+  --ls-display:  -0.070em;  /* from Figma "Ledens" wordmark */
+  --ls-heading:  -0.02em;
+  --ls-body:     0;
+  --ls-caps:     0.04em;
+
+  /* -------------------------------------------------------------------
+   * SHAPE — radii, shadows, spacing
+   * ------------------------------------------------------------------- */
+  --radius-sm:   6px;
+  --radius-md:   8px;   /* buttons — from Figma BTNs */
+  --radius-lg:   12px;
+  --radius-xl:   20px;  /* pill/CTA rounding — from Figma header buttons */
+  --radius-pill: 999px;
+
+  --shadow-1: 0 1px 2px rgba(12, 6, 43, 0.06), 0 1px 1px rgba(12, 6, 43, 0.04);
+  --shadow-2: 0 4px 12px rgba(12, 6, 43, 0.08), 0 2px 4px rgba(12, 6, 43, 0.04);
+  --shadow-3: 0 12px 32px rgba(12, 6, 43, 0.12), 0 4px 8px rgba(12, 6, 43, 0.06);
+  --shadow-brand: 0 10px 30px rgba(85, 103, 174, 0.28);
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+  --space-9: 96px;
+
+  --dur-fast: 120ms;
+  --dur-med:  220ms;
+  --ease:     cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+/* =========================================================================
+ * SEMANTIC ELEMENT DEFAULTS
+ * Apply to any page that imports this file. Keeps Ledens tone out of the box.
+ * ========================================================================= */
+html { color: var(--fg1); background: var(--bg); font-family: var(--font-sans); }
+body { margin: 0; font-size: var(--fs-body); line-height: var(--lh-normal); }
+
+h1, .h1 {
+  font-family: var(--font-sans);
+  font-weight: 700;
+  font-size: var(--fs-h1);
+  line-height: var(--lh-tight);
+  letter-spacing: var(--ls-heading);
+  color: var(--fg1);
+  margin: 0 0 var(--space-4);
+}
+h2, .h2 {
+  font-family: var(--font-sans);
+  font-weight: 700;
+  font-size: var(--fs-h2);
+  line-height: var(--lh-snug);
+  letter-spacing: var(--ls-heading);
+  color: var(--fg1);
+  margin: 0 0 var(--space-3);
+}
+h3, .h3 {
+  font-family: var(--font-sans);
+  font-weight: 700;
+  font-size: var(--fs-h3);
+  line-height: var(--lh-snug);
+  color: var(--fg1);
+  margin: 0 0 var(--space-3);
+}
+p  { margin: 0 0 var(--space-4); color: var(--fg2); text-wrap: pretty; }
+small, .caption { font-size: var(--fs-caption); color: var(--fg3); }
+
+a { color: var(--fg-brand); text-underline-offset: 3px; }
+a:hover { color: var(--action-primary-hover); }
+
+.display {
+  font-family: var(--font-sans);
+  font-weight: 700;
+  font-size: var(--fs-display);
+  line-height: var(--lh-tight);
+  letter-spacing: var(--ls-display);
+  color: var(--ledens-blue);
+}
+.eyebrow {
+  font-family: var(--font-sans);
+  font-weight: 700;
+  font-size: var(--fs-eyebrow);
+  letter-spacing: var(--ls-caps);
+  text-transform: uppercase;
+  color: var(--ledens-blue);
+}
+
+/* Brand gradient (diamond-ish) — used on blue hero panels in the Figma file. */
+.bg-brand {
+  background: linear-gradient(135deg, #4A5A9B 0%, #5567AE 55%, #6A7FC4 100%);
+  color: var(--fg-on-brand);
+}
+
+/* Wordmark helper — mirrors Figma "Ledens" wordmark exactly */
+.wordmark {
+  font-family: var(--font-sans);
+  font-weight: 700;
+  font-size: 60px;
+  line-height: 1;
+  letter-spacing: -0.070em;
+  color: var(--ledens-blue);
+}
