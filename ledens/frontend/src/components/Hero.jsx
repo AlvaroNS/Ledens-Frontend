@@ -8,13 +8,17 @@ export default function Hero({ onOpenLead }) {
         <div className="hero-copy">
           <span className="hero-eyebrow"><span className="dot"></span>Reformas en Málaga · Presupuesto cerrado</span>
           <h1>
-            Obtén un <span className="hl-pink">presupuesto en 24h</span><br />
-            y alguien trabajando en tu <span className="hl-teal">reforma en 48h.</span>
+            Tu última reforma fue un <span className="hl-pink">desastre.</span><br />
+            La siguiente no tiene que serlo.
           </h1>
+          <p className="hero-lead">
+            Obtén un <span className="hl-soft-pink">presupuesto en 24h</span> y alguien
+            trabajando en tu <span className="hl-soft-teal">reforma en 48h</span>.
+          </p>
           <p className="hero-sub">
-            En Ledens reformamos con presupuesto cerrado, plazos firmados y un único
-            interlocutor de principio a fin. Cuéntanos tu proyecto hoy y mañana
-            tenemos equipo en tu casa.
+            Presupuesto cerrado, plazos firmados y un único interlocutor de
+            principio a fin. Cuéntanos tu proyecto hoy y mañana tenemos equipo
+            en tu casa.
           </p>
           <div className="hero-cta-row">
             <button className="btn btn-lg btn-pink" onClick={onOpenLead}>
