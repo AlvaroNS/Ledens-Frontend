@@ -10,23 +10,33 @@
 .hdr-inner {
   max-width: 100%; margin: 0 auto;
   padding: 14px clamp(24px, 4vw, 64px);
-  display: flex; align-items: center; gap: 18px; height: 78px;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center; gap: clamp(20px, 3vw, 44px);
+  height: 78px;
 }
+.hdr-left { display: flex; align-items: center; gap: 14px; min-width: 0; }
 .logo { display: flex; align-items: center; gap: 10px; }
 .logo img { width: 42px; height: 42px; object-fit: contain; }
 .logo-word { font-weight: 700; font-size: 30px; line-height: 1; letter-spacing: -0.07em; color: var(--ledens-blue); }
 .logo-sep { width: 1px; height: 24px; background: rgba(12,6,43,0.14); }
 .logo-tag { font-weight: 700; font-size: 15px; color: var(--ledens-blue); white-space: nowrap; }
-.nav { display: flex; align-items: center; gap: 24px; margin-left: 28px; }
+.nav {
+  display: flex; align-items: center;
+  justify-content: space-evenly;
+  gap: clamp(14px, 2vw, 42px);
+  justify-self: stretch;
+}
 .nav a {
   font-weight: 700; font-size: 13px; letter-spacing: 0.02em;
   color: var(--ledens-blue);
   display: inline-flex; align-items: center; gap: 4px;
+  white-space: nowrap;
   transition: color 140ms var(--ease);
 }
 .nav a:hover { color: var(--ledens-blue-700); }
 .nav a .chev { font-size: 14px; opacity: 0.7; }
-.hdr-ctas { margin-left: auto; display: flex; gap: 10px; align-items: center; }
+.hdr-ctas { display: flex; gap: 10px; align-items: center; }
 
 .btn {
   display: inline-flex; align-items: center; justify-content: center; gap: 8px;
@@ -54,9 +64,9 @@
 .hero-inner {
   position: relative; z-index: 2;
   max-width: 100%; margin: 0 auto;
-  padding: 72px clamp(24px, 4vw, 64px) 88px;
+  padding: clamp(40px, 5vh, 64px) clamp(24px, 4vw, 64px) clamp(48px, 6vh, 72px);
   display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
-  gap: 56px; align-items: center;
+  gap: clamp(32px, 4vw, 56px); align-items: start;
 }
 .hero-copy { color: #fff; }
 .hero-eyebrow {
@@ -90,7 +100,14 @@
 .hero-trust-item i { color: #A9E1D8; font-size: 18px; }
 
 .carousel {
-  position: relative; aspect-ratio: 4 / 5; width: 100%;
+  position: relative; aspect-ratio: 4 / 5;
+  /* Cap height to viewport so the whole hero (headline + CTAs + image) stays
+     in one screen. Width auto-shrinks via aspect-ratio. max-width keeps the
+     carousel inside its grid track on narrow/tall viewports. */
+  height: min(72vh, calc(100vh - 200px));
+  width: auto;
+  max-width: 100%;
+  justify-self: end; align-self: start;
   border-radius: 20px; overflow: hidden;
   box-shadow: 0 32px 80px rgba(12,6,43,0.35), 0 12px 24px rgba(12,6,43,0.2);
 }
@@ -364,8 +381,13 @@ footer { background: var(--ledens-navy); color: rgba(255,255,255,0.8); padding: 
 
 /* Responsive */
 @media (max-width: 1000px) {
-  .hdr-inner { height: auto; flex-wrap: nowrap; }
+  .hdr-inner {
+    height: auto;
+    display: flex; justify-content: space-between; align-items: center;
+    gap: 16px;
+  }
   .nav { display: none; }
+  .carousel { height: auto; width: 100%; justify-self: stretch; }
   .hero-inner { grid-template-columns: 1fr; gap: 40px; padding-top: 56px; padding-bottom: 72px; }
   .pilares, .testis, .proc-grid, .faq-grid { grid-template-columns: 1fr; gap: 20px; }
   .problema-grid { grid-template-columns: 1fr 1fr; }

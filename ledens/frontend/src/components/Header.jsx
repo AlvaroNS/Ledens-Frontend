@@ -5,12 +5,14 @@ export default function Header({ onOpenLead }) {
   return (
     <header className="hdr">
       <div className="hdr-inner">
-        <a className="logo" href="#">
-          <img src={logo} alt="Ledens" />
-          <span className="logo-word">Ledens</span>
-        </a>
-        <div className="logo-sep"></div>
-        <span className="logo-tag">Reformas inteligentes</span>
+        <div className="hdr-left">
+          <a className="logo" href="#">
+            <img src={logo} alt="Ledens" />
+            <span className="logo-word">Ledens</span>
+          </a>
+          <div className="logo-sep"></div>
+          <span className="logo-tag">Reformas inteligentes</span>
+        </div>
         <nav className="nav">
           <a href="#compromisos">SERVICIOS <i className="ri-arrow-down-s-line chev"></i></a>
           <a href="#galeria">PROYECTOS</a>
