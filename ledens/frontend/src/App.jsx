@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import Header from './components/Header.jsx';
 import Hero from './components/Hero.jsx';
+import Problema from './components/Problema.jsx';
 import PromiseStrip from './components/PromiseStrip.jsx';
 import Compromisos from './components/Compromisos.jsx';
 import Proceso from './components/Proceso.jsx';
@@ -20,6 +21,7 @@ export default function App() {
     <>
       <Header onOpenLead={openLead} />
       <Hero onOpenLead={openLead} />
+      <Problema />
       <PromiseStrip />
       <Compromisos />
       <Proceso />
