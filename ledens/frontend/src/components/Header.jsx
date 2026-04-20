@@ -8,6 +8,11 @@ import {
 } from '@clerk/clerk-react';
 import logo from '../assets/logo-ledens-isotype.png';
 
+// Clerk components must only be rendered inside <ClerkProvider>.
+// When the publishable key is missing (build without env var), we fall back to
+// plain static buttons so the site stays fully visible.
+const CLERK_ENABLED = Boolean(import.meta.env.VITE_CLERK_PUBLISHABLE_KEY);
+
 export default function Header() {
   return (
     <header className="hdr">
@@ -28,17 +33,26 @@ export default function Header() {
           <a href="#faq">QUIENES SOMOS</a>
         </nav>
         <div className="hdr-ctas">
-          <SignedOut>
-            <SignInButton mode="modal">
+          {CLERK_ENABLED ? (
+            <>
+              <SignedOut>
+                <SignInButton mode="modal">
+                  <button type="button" className="btn btn-sm btn-outline">INICIA SESIÓN</button>
+                </SignInButton>
+                <SignUpButton mode="modal">
+                  <button type="button" className="btn btn-sm btn-blue">REGÍSTRATE</button>
+                </SignUpButton>
+              </SignedOut>
+              <SignedIn>
+                <UserButton afterSignOutUrl="/" />
+              </SignedIn>
+            </>
+          ) : (
+            <>
               <button type="button" className="btn btn-sm btn-outline">INICIA SESIÓN</button>
-            </SignInButton>
-            <SignUpButton mode="modal">
               <button type="button" className="btn btn-sm btn-blue">REGÍSTRATE</button>
-            </SignUpButton>
-          </SignedOut>
-          <SignedIn>
-            <UserButton afterSignOutUrl="/" />
-          </SignedIn>
+            </>
+          )}
         </div>
       </div>
     </header>
