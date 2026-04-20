@@ -9,7 +9,7 @@ export default function Hero({ onOpenLead }) {
           <span className="hero-eyebrow"><span className="dot"></span>Reformas en Málaga · Presupuesto cerrado</span>
           <h1>
             Tu última reforma fue <em className="hl-em">un desastre.</em><br />
-            <span className="hl-teal">La siguiente no tiene porqué serlo.</span>
+            <span className="hl-teal">La siguiente no tiene por qué serlo.</span>
           </h1>
           <p className="hero-lead">
             Obtén un <span className="hl-accent">presupuesto en 24h</span> y alguien

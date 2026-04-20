@@ -19,7 +19,7 @@ export default function App() {
 
   return (
     <>
-      <Header onOpenLead={openLead} />
+      <Header />
       <Hero onOpenLead={openLead} />
       <Problema />
       <PromiseStrip />

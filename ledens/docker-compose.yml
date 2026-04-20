@@ -14,7 +14,10 @@ services:
       - ledens-net
 
   frontend:
-    build: ./frontend
+    build:
+      context: ./frontend
+      args:
+        VITE_CLERK_PUBLISHABLE_KEY: ${VITE_CLERK_PUBLISHABLE_KEY:-}
     container_name: ledens-frontend
     restart: unless-stopped
     depends_on:

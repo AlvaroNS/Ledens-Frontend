@@ -1,7 +1,14 @@
 import React from 'react';
+import {
+  SignInButton,
+  SignUpButton,
+  SignedIn,
+  SignedOut,
+  UserButton,
+} from '@clerk/clerk-react';
 import logo from '../assets/logo-ledens-isotype.png';
 
-export default function Header({ onOpenLead }) {
+export default function Header() {
   return (
     <header className="hdr">
       <div className="hdr-inner">
@@ -21,8 +28,17 @@ export default function Header({ onOpenLead }) {
           <a href="#faq">QUIENES SOMOS</a>
         </nav>
         <div className="hdr-ctas">
-          <button className="btn btn-sm btn-outline">INICIA SESIÓN</button>
-          <button className="btn btn-sm btn-blue" onClick={onOpenLead}>REGISTRATE</button>
+          <SignedOut>
+            <SignInButton mode="modal">
+              <button type="button" className="btn btn-sm btn-outline">INICIA SESIÓN</button>
+            </SignInButton>
+            <SignUpButton mode="modal">
+              <button type="button" className="btn btn-sm btn-blue">REGÍSTRATE</button>
+            </SignUpButton>
+          </SignedOut>
+          <SignedIn>
+            <UserButton afterSignOutUrl="/" />
+          </SignedIn>
         </div>
       </div>
     </header>
