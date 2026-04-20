@@ -8,12 +8,12 @@ export default function Hero({ onOpenLead }) {
         <div className="hero-copy">
           <span className="hero-eyebrow"><span className="dot"></span>Reformas en Málaga · Presupuesto cerrado</span>
           <h1>
-            Tu última reforma fue un <span className="hl-pink">desastre.</span><br />
-            La siguiente no tiene que serlo.
+            Tu última reforma fue <em className="hl-em">un desastre.</em><br />
+            <span className="hl-teal">La siguiente no tiene porqué serlo.</span>
           </h1>
           <p className="hero-lead">
-            Obtén un <span className="hl-soft-pink">presupuesto en 24h</span> y alguien
-            trabajando en tu <span className="hl-soft-teal">reforma en 48h</span>.
+            Obtén un <span className="hl-accent">presupuesto en 24h</span> y alguien
+            trabajando en tu <span className="hl-accent-teal">reforma en 48h</span>.
           </p>
           <p className="hero-sub">
             Presupuesto cerrado, plazos firmados y un único interlocutor de
@@ -24,7 +24,7 @@ export default function Hero({ onOpenLead }) {
             <button className="btn btn-lg btn-pink" onClick={onOpenLead}>
               <i className="ri-whatsapp-fill"></i> Pide tu presupuesto
             </button>
-            <a href="#proceso" className="btn btn-lg btn-outline-light">
+            <a href="#proceso" className="btn btn-lg btn-outline">
               Cómo funciona <i className="ri-arrow-down-line"></i>
             </a>
           </div>
