@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <title>Ledens isotype</title>
+  
+  <defs>
+    <clipPath id="clipAll"><rect width="200" height="200"></rect></clipPath>
+  </defs>
+  <g clip-path="url(#clipAll)" style="mix-blend-mode:multiply">
+    
+    <g transform="translate(100 82) rotate(-18)" opacity="0.92">
+      <rect x="-55" y="-55" width="110" height="110" rx="38" fill="#68C0B5"></rect>
+    </g>
+    
+    <g transform="translate(82 122) rotate(20)" opacity="0.92">
+      <rect x="-55" y="-55" width="110" height="110" rx="38" fill="#EC6090"></rect>
+    </g>
+    
+    <g transform="translate(128 130) rotate(-22)" opacity="0.92">
+      <rect x="-55" y="-55" width="110" height="110" rx="38" fill="#5567AE"></rect>
+    </g>
+  </g>
+  
+  <circle cx="138" cy="70" r="13" fill="#EC6090"></circle>
+</svg>
