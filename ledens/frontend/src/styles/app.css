@@ -11,7 +11,11 @@
   max-width: 100%; margin: 0 auto;
   padding: 14px clamp(24px, 4vw, 64px);
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
+  /* max-content on the nav track guarantees the middle column is never
+     squeezed below the nav items' intrinsic width, which would cause the
+     centered nav to overflow into the logo-tag on the left and the auth
+     buttons on the right. */
+  grid-template-columns: auto minmax(max-content, 1fr) auto;
   align-items: center; gap: clamp(20px, 3vw, 44px);
   height: 92px;
 }
@@ -38,6 +42,8 @@
 .nav a:hover { color: var(--ledens-blue-700); }
 .nav a .chev { font-size: 14px; opacity: 0.7; }
 .hdr-ctas { display: flex; gap: 10px; align-items: center; }
+/* Match Clerk's UserButton avatar size to the sibling auth buttons (40px) */
+.hdr-ctas .cl-userButtonAvatarBox { width: 40px; height: 40px; }
 
 .btn {
   display: inline-flex; align-items: center; justify-content: center; gap: 8px;
@@ -387,6 +393,13 @@ footer { background: var(--ledens-navy); color: rgba(255,255,255,0.8); padding: 
 .modal-error { background: #FBE5E5; color: #B83C3C; padding: 12px; border-radius: 10px; font-size: 14px; margin-bottom: 12px; }
 
 /* Responsive */
+/* Drop the tagline on medium widths before it overlaps the centered nav. */
+@media (max-width: 1280px) {
+  .logo-sep, .logo-tag { display: none; }
+  .nav { gap: clamp(18px, 2vw, 36px); }
+  .nav a { font-size: 12.5px; }
+}
+
 @media (max-width: 1000px) {
   .hdr-inner {
     height: auto;

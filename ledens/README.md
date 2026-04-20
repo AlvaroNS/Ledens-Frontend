@@ -39,13 +39,35 @@ ledens/
             └── contact.js  # POST /api/contact → leads.jsonl
 ```
 
+## Authentication (Clerk)
+
+The header `INICIA SESIÓN` / `REGÍSTRATE` buttons are wired to Clerk's hosted
+auth via the React SDK (`@clerk/clerk-react`). When a user is signed in the
+two buttons are replaced with Clerk's `<UserButton />` (avatar + menu).
+
+1. Create a project at <https://dashboard.clerk.com> → copy the **Publishable
+   key** (starts with `pk_test_...` or `pk_live_...`).
+2. Put it in `.env` (repo root — picked up by `docker-compose.yml` as a build
+   arg) **and/or** `frontend/.env.local` for non-Docker dev:
+   ```env
+   VITE_CLERK_PUBLISHABLE_KEY=pk_test_********
+   ```
+3. Rebuild the frontend image — Vite inlines the key at build time, so a
+   plain restart is not enough:
+   ```bash
+   docker compose up -d --build frontend
+   ```
+
+Missing key? The app still boots but logs a console error and the auth
+buttons won't open any modal.
+
 ## Deploy on your PC (local)
 
 Prerequisites: Docker Desktop running.
 
 ```bash
 cd ledens
-cp .env.example .env          # optional — defaults work out of the box
+cp .env.example .env          # paste your VITE_CLERK_PUBLISHABLE_KEY
 docker compose up -d --build
 ```
 
