@@ -1,35 +1,55 @@
 import React, { useEffect, useRef, useState } from 'react';
 
+import imgTilos19 from '../images/Tilos 57-19.webp';
+import imgTilos05 from '../images/Tilos 57-05.webp';
+import imgTilos02 from '../images/Tilos 57-02.webp';
+import imgTilos17 from '../images/Tilos 57-17.webp';
+import img1495    from '../images/IMG_1495.webp';
+import img1641    from '../images/IMG_1641.webp';
+
+// Tilos 57-19 is the hero image — it goes first (idx = 0).
 const SLIDES = [
   {
-    img: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1400&q=80',
-    room: 'Cocina', loc: 'Cocina abierta · La Malagueta', size: '18 m²',
-    meta: ['4 semanas', 'Llave en mano'],
+    img:  imgTilos19,
+    room: 'Cocina',
+    loc:  'Cocina con isla · Tilos 57',
+    size: '24 m²',
+    meta: ['8 semanas', 'Llave en mano'],
   },
   {
-    img: 'https://images.unsplash.com/photo-1552321554-5fefe8c9ef14?auto=format&fit=crop&w=1400&q=80',
-    room: 'Baño', loc: 'Baño principal · El Palo', size: '7 m²',
+    img:  imgTilos05,
+    room: 'Baño',
+    loc:  'Baño doble · Tilos 57',
+    size: '9 m²',
+    meta: ['3 semanas', 'Ducha de obra'],
+  },
+  {
+    img:  img1495,
+    room: 'Salón',
+    loc:  'Salón comedor · Málaga Centro',
+    size: '22 m²',
+    meta: ['5 semanas', 'Suelo de roble'],
+  },
+  {
+    img:  imgTilos02,
+    room: 'Baño',
+    loc:  'Baño principal · Tilos 57',
+    size: '7 m²',
     meta: ['3 semanas', 'Microcemento'],
   },
   {
-    img: 'https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=1400&q=80',
-    room: 'Salón', loc: 'Salón comedor · Pedregalejo', size: '24 m²',
-    meta: ['5 semanas', 'Roble natural'],
+    img:  imgTilos17,
+    room: 'Cocina',
+    loc:  'Cocina con isla · Tilos 57',
+    size: '22 m²',
+    meta: ['6 semanas', 'Mármol Calacatta'],
   },
   {
-    img: 'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?auto=format&fit=crop&w=1400&q=80',
-    room: 'Cocina', loc: 'Cocina con isla · Centro Histórico', size: '22 m²',
-    meta: ['6 semanas', 'Mármol travertino'],
-  },
-  {
-    img: 'https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?auto=format&fit=crop&w=1400&q=80',
-    room: 'Baño', loc: 'Baño en suite · Teatinos', size: '9 m²',
-    meta: ['3,5 semanas', 'Ducha de obra'],
-  },
-  {
-    img: 'https://images.unsplash.com/photo-1567767292278-a4f21aa2d36e?auto=format&fit=crop&w=1400&q=80',
-    room: 'Salón', loc: 'Salón luminoso · Churriana', size: '28 m²',
-    meta: ['5 semanas', 'Cal mineral'],
+    img:  img1641,
+    room: 'Dormitorio',
+    loc:  'Dormitorio principal · Málaga Centro',
+    size: '14 m²',
+    meta: ['4 semanas', 'Tarima de roble'],
   },
 ];
 

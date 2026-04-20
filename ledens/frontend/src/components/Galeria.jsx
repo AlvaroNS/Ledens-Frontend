@@ -1,11 +1,37 @@
 import React, { useState } from 'react';
 
+import imgTilos19 from '../images/Tilos 57-19.webp';
+import imgTilos04 from '../images/Tilos 57-04.webp';
+import imgTilos23 from '../images/Tilos 57-23.webp';
+import img1492    from '../images/IMG_1492.webp';
+import img1495    from '../images/IMG_1495.webp';
+
 const CELLS = [
-  { cat: 'cocinas', tall: true,  img: 'https://images.unsplash.com/photo-1600585154526-990dced4db0d?auto=format&fit=crop&w=1200&q=80', r: 'Cocina', l: 'Nueva Andalucía · 22 m²' },
-  { cat: 'banos',   tall: false, img: 'https://images.unsplash.com/photo-1620626011761-996317b8d101?auto=format&fit=crop&w=900&q=80',  r: 'Baño',   l: 'Limonar · 6 m²' },
-  { cat: 'salones', tall: false, img: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&w=900&q=80',  r: 'Salón',  l: 'Pedregalejo · 26 m²' },
-  { cat: 'cocinas', tall: false, img: 'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?auto=format&fit=crop&w=900&q=80',  r: 'Cocina', l: 'Centro · 18 m²' },
-  { cat: 'salones', tall: false, img: 'https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&w=900&q=80',  r: 'Salón',  l: 'Teatinos · 24 m²' },
+  {
+    cat: 'cocinas', tall: true,
+    img: imgTilos19,
+    r: 'Cocina', l: 'Tilos 57 · 24 m²',
+  },
+  {
+    cat: 'banos', tall: false,
+    img: imgTilos04,
+    r: 'Baño', l: 'Tilos 57 · 9 m²',
+  },
+  {
+    cat: 'salones', tall: false,
+    img: img1495,
+    r: 'Salón', l: 'Málaga Centro · 22 m²',
+  },
+  {
+    cat: 'cocinas', tall: false,
+    img: img1492,
+    r: 'Cocina', l: 'Málaga Centro · 14 m²',
+  },
+  {
+    cat: 'salones', tall: false,
+    img: imgTilos23,
+    r: 'Terraza', l: 'Tilos 57 · 18 m²',
+  },
 ];
 
 const TABS = [
