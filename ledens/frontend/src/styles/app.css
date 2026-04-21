@@ -394,9 +394,11 @@ footer { background: var(--ledens-navy); color: rgba(255,255,255,0.8); padding: 
 .modal-error { background: #FBE5E5; color: #B83C3C; padding: 12px; border-radius: 10px; font-size: 14px; margin-bottom: 12px; }
 
 /* Responsive */
-/* Hide the decorative tagline on mid-width screens to keep the header tidy
-   (the absolute nav doesn't overlap anything, but the logo block gets long). */
-@media (max-width: 1280px) {
+/* Hide the tagline once the viewport is narrow enough that the absolute-centered
+   nav's left edge reaches the logo block. Threshold derived from:
+     viewport/2 - halfNavWidth < sidePadding + logoWidth + sep + tagWidth
+   Solving gives ~1480px; using 1560px gives a comfortable safety margin. */
+@media (max-width: 1560px) {
   .logo-sep, .logo-tag { display: none; }
 }
 
