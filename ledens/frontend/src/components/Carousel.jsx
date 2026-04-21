@@ -4,7 +4,7 @@ import imgTilos19 from '../images/Tilos 57-19.webp';
 import imgTilos05 from '../images/Tilos 57-05.webp';
 import imgTilos02 from '../images/Tilos 57-02.webp';
 import imgTilos17 from '../images/Tilos 57-17.webp';
-import img1495    from '../images/IMG_1495.webp';
+import img1478    from '../images/IMG_1478.webp';
 import img1641    from '../images/IMG_1641.webp';
 
 // Tilos 57-19 is the hero image — it goes first (idx = 0).
@@ -24,9 +24,9 @@ const SLIDES = [
     meta: ['3 semanas', 'Ducha de obra'],
   },
   {
-    img:  img1495,
-    room: 'Salón',
-    loc:  'Salón comedor · Málaga Centro',
+    img:  img1478,
+    room: 'Terraza',
+    loc:  'Terraza · Málaga Centro',
     size: '22 m²',
     meta: ['5 semanas', 'Suelo de roble'],
   },

@@ -4,7 +4,7 @@ import imgTilos19 from '../images/Tilos 57-19.webp';
 import imgTilos04 from '../images/Tilos 57-04.webp';
 import imgTilos23 from '../images/Tilos 57-23.webp';
 import img1492    from '../images/IMG_1492.webp';
-import img1495    from '../images/IMG_1495.webp';
+import img1478    from '../images/IMG_1478.webp';
 
 const CELLS = [
   {
@@ -19,8 +19,8 @@ const CELLS = [
   },
   {
     cat: 'salones', tall: false,
-    img: img1495,
-    r: 'Salón', l: 'Málaga Centro · 22 m²',
+    img: img1478,
+    r: 'Terraza', l: 'Málaga Centro · 22 m²',
   },
   {
     cat: 'cocinas', tall: false,
