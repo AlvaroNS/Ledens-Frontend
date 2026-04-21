@@ -70,19 +70,27 @@
  * ============================================================ */
 .hero {
   position: relative; background: #fff; overflow: hidden;
-  /* Exactly fill the viewport below the header so the message + image +
-     CTAs are always visible on first load, even on 1664px-tall screens. */
   min-height: calc(100vh - 92px);
-  display: flex; align-items: center;
+  /* stretch so the carousel can fill the full hero height */
+  display: flex; align-items: stretch;
 }
 .hero-inner {
   position: relative; z-index: 2;
-  width: 100%; max-width: 100%; margin: 0 auto;
-  padding: clamp(32px, 4vh, 56px) clamp(24px, 4vw, 64px);
-  display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
-  gap: clamp(24px, 3vw, 48px); align-items: center;
+  width: 100%;
+  /* Flex row: text left (flex:1) + carousel right (60vw, no right padding) */
+  display: flex; align-items: stretch;
+  gap: 0; padding: 0;
 }
-.hero-copy { color: var(--ledens-navy); }
+/* Text column: carries its own padding now that hero-inner has none */
+.hero-copy {
+  color: var(--ledens-navy);
+  flex: 1 1 auto; min-width: 0;
+  display: flex; flex-direction: column; justify-content: center;
+  padding: clamp(40px, 5vh, 72px)
+           clamp(32px, 3vw, 52px)
+           clamp(40px, 5vh, 72px)
+           clamp(24px, 4vw, 64px);
+}
 .hero-eyebrow {
   display: inline-flex; align-items: center; gap: 10px;
   font-weight: 700; font-size: 12px; letter-spacing: 0.14em;
@@ -114,16 +122,17 @@
 .hero-trust-item i { color: var(--ledens-teal-600); font-size: 18px; }
 
 .carousel {
-  position: relative; aspect-ratio: 4 / 5;
-  /* Hard cap. The whole hero (headline + copy + CTAs + image) must fit in
-     one viewport below the 92px header. clamp keeps the image a reasonable
-     size on huge screens (1664px tall) without shrinking on laptops. */
-  height: clamp(520px, 80vh, 880px);
-  width: auto;
-  max-width: 100%;
-  justify-self: end; align-self: center;
-  border-radius: 20px; overflow: hidden;
-  box-shadow: 0 32px 80px rgba(12,6,43,0.18), 0 12px 24px rgba(12,6,43,0.08);
+  position: relative;
+  /* 60vw fixed width — covers 60% of page, pinned to the right edge.
+     height: auto + align-self: stretch fills the full hero height. */
+  flex: 0 0 60vw;
+  width: 60vw; height: auto;
+  /* No aspect-ratio constraint — the image fills whatever the hero height is */
+  aspect-ratio: unset;
+  /* Round only the inner-left corners; right edge bleeds to the page boundary */
+  border-radius: 20px 0 0 20px;
+  overflow: hidden;
+  box-shadow: -20px 0 60px rgba(12,6,43,0.12);
 }
 .carousel-track { position: absolute; inset: 0; display: flex; transition: transform 700ms cubic-bezier(0.2, 0.7, 0.2, 1); will-change: transform; }
 .slide { flex: 0 0 100%; position: relative; background-size: cover; background-position: center; }
@@ -406,8 +415,14 @@ footer { background: var(--ledens-navy); color: rgba(255,255,255,0.8); padding: 
   .hdr-inner { height: auto; } /* already flex — just reset height */
   .nav { display: none; }
   .hero { min-height: 0; display: block; }
-  .carousel { height: auto; width: 100%; justify-self: stretch; align-self: stretch; }
-  .hero-inner { grid-template-columns: 1fr; gap: 40px; padding-top: 56px; padding-bottom: 72px; }
+  .hero-inner { flex-direction: column; gap: 40px;
+    padding: 56px clamp(20px, 4vw, 40px) 0; }
+  .hero-copy { flex: none; padding: 0; }
+  .carousel {
+    flex: none; width: 100%; height: auto;
+    aspect-ratio: 4 / 5; border-radius: 20px;
+    box-shadow: 0 32px 80px rgba(12,6,43,0.18), 0 12px 24px rgba(12,6,43,0.08);
+  }
   .pilares, .testis, .proc-grid, .faq-grid { grid-template-columns: 1fr; gap: 20px; }
   .problema-grid { grid-template-columns: 1fr 1fr; }
   .promise-inner { grid-template-columns: repeat(2, 1fr); gap: 20px; }
