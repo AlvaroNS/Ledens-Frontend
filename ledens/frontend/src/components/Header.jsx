@@ -24,6 +24,13 @@ export default function Header() {
     'Carpintería',
     'Alicatado',
   ];
+  const successCases = [
+    'Santa Marta',
+    'Pasaje Pezuela',
+    'Martinez de la Rosa',
+    'Paseo de Los Tilos',
+    'Avenida de la Paloma',
+  ];
 
   return (
     <header className="hdr">
@@ -37,7 +44,7 @@ export default function Header() {
           <span className="logo-tag">Reformas inteligentes</span>
         </div>
         <nav className="nav">
-          <div className="nav-item nav-item-services">
+          <div className="nav-item nav-item-dropdown">
             <a href="#compromisos">SERVICIOS <i className="ri-arrow-down-s-line chev"></i></a>
             <div className="nav-menu" aria-label="Servicios">
               {services.map((service) => (
@@ -47,7 +54,14 @@ export default function Header() {
           </div>
           <a href="#galeria">PROYECTOS</a>
           <a href="#proceso">CÓMO FUNCIONA</a>
-          <a href="#testimonios">CASOS DE ÉXITO</a>
+          <div className="nav-item nav-item-dropdown">
+            <a href="#testimonios">CASOS DE ÉXITO <i className="ri-arrow-down-s-line chev"></i></a>
+            <div className="nav-menu nav-menu-success" aria-label="Casos de éxito">
+              {successCases.map((successCase) => (
+                <a key={successCase} href="#testimonios" className="nav-menu-link">{successCase}</a>
+              ))}
+            </div>
+          </div>
           <a href="#faq">QUIENES SOMOS</a>
         </nav>
         <div className="hdr-ctas">
