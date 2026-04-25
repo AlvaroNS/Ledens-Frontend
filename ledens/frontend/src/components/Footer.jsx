@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import logo from '../assets/logo-ledens-isotype.png';
 
 export default function Footer() {
@@ -15,11 +16,13 @@ export default function Footer() {
           </p>
         </div>
         <div className="foot-col">
-          <h5>Reformas</h5>
-          <a href="#">Cocinas</a>
-          <a href="#">Baños</a>
-          <a href="#">Reforma integral</a>
-          <a href="#">Pisos de inversión</a>
+          <h5>Servicios</h5>
+          <Link to="/servicios/albanileria">Albañilería</Link>
+          <Link to="/servicios/electricidad">Electricidad</Link>
+          <Link to="/servicios/fontaneria">Fontanería</Link>
+          <Link to="/servicios/climatizacion">Climatización</Link>
+          <Link to="/servicios/pladur">Pladur</Link>
+          <Link to="/servicios/carpinteria">Carpintería</Link>
         </div>
         <div className="foot-col">
           <h5>Empresa</h5>

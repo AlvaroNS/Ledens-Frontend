@@ -14,6 +14,7 @@ import Footer from './components/Footer.jsx';
 import LeadModal from './components/LeadModal.jsx';
 import AuthPage from './components/AuthPage.jsx';
 import SsoCallback from './components/SsoCallback.jsx';
+import ServicioPage from './components/ServicioPage.jsx';
 
 /* The full landing page */
 function LandingPage({ onOpenLead }) {
@@ -60,6 +61,7 @@ export default function App() {
               <Routes>
                 <Route path="/" element={<LandingPage onOpenLead={openLead} />} />
                 <Route path="/auth" element={<AuthPage />} />
+                <Route path="/servicios/:slug" element={<ServicioPage onOpenLead={openLead} />} />
                 {/* Fallback: anything unknown → landing */}
                 <Route path="*" element={<LandingPage onOpenLead={openLead} />} />
               </Routes>

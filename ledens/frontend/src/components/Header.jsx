@@ -13,14 +13,12 @@ import logo from '../assets/logo-ledens-isotype.png';
 const CLERK_ENABLED = Boolean(import.meta.env.VITE_CLERK_PUBLISHABLE_KEY);
 
 const SERVICES = [
-  { icon: 'ri-hammer-line',       label: 'Demolición',    desc: 'Vaciados, derribo de tabiques' },
-  { icon: 'ri-drop-line',         label: 'Fontanería',    desc: 'Instalaciones y saneamiento' },
-  { icon: 'ri-flashlight-line',   label: 'Electricidad',  desc: 'BT, iluminación y domótica' },
-  { icon: 'ri-temp-cold-line',    label: 'Climatización', desc: 'A/A, calefacción y ventilación' },
-  { icon: 'ri-building-2-line',   label: 'Albañilería',   desc: 'Enfoscados, solados y pinturas' },
-  { icon: 'ri-layout-2-line',     label: 'Pladur',        desc: 'Tabiquería y techos continuos' },
-  { icon: 'ri-door-open-line',    label: 'Carpintería',   desc: 'Puertas, ventanas y armarios' },
-  { icon: 'ri-grid-line',         label: 'Alicatado',     desc: 'Azulejos, gresite y microcemento' },
+  { icon: 'ri-hammer-line',     slug: 'albanileria',   label: 'Albañilería',   desc: 'Obra, alicatado y solados' },
+  { icon: 'ri-flashlight-line', slug: 'electricidad',  label: 'Electricidad',  desc: 'Instalación, cuadro y domótica' },
+  { icon: 'ri-drop-line',       slug: 'fontaneria',    label: 'Fontanería',    desc: 'Tuberías, sanitarios, fugas' },
+  { icon: 'ri-temp-cold-line',  slug: 'climatizacion', label: 'Climatización', desc: 'Aire acondicionado y aerotermia' },
+  { icon: 'ri-layout-2-line',   slug: 'pladur',        label: 'Pladur',        desc: 'Tabiques, techos y armarios' },
+  { icon: 'ri-door-open-line',  slug: 'carpinteria',   label: 'Carpintería',   desc: 'Madera, puertas y a medida' },
 ];
 
 const SUCCESS_CASES = [
@@ -50,13 +48,13 @@ export default function Header() {
             <a href="#compromisos">SERVICIOS <i className="ri-arrow-down-s-line chev"></i></a>
             <div className="nav-menu nav-menu-services" aria-label="Servicios">
               {SERVICES.map((s) => (
-                <a key={s.label} href="#compromisos" className="nav-menu-link">
+                <Link key={s.slug} to={`/servicios/${s.slug}`} className="nav-menu-link">
                   <span className="nm-ico"><i className={s.icon}></i></span>
                   <span className="nm-text">
                     <span className="nm-t">{s.label}</span>
                     <span className="nm-s">{s.desc}</span>
                   </span>
-                </a>
+                </Link>
               ))}
             </div>
           </div>
