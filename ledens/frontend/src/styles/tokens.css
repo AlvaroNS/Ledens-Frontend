@@ -56,6 +56,7 @@
   --danger:  #D14A4A;
 
   --font-sans:    "DM Sans", system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+  --font-accent:  "Manrope", "DM Sans", system-ui, sans-serif;
 
   --fs-display:  clamp(48px, 6vw, 72px);
   --fs-h1:       clamp(32px, 3.5vw, 44px);

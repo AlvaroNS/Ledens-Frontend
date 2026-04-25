@@ -6,25 +6,23 @@ export default function Hero({ onOpenLead }) {
     <section className="hero">
       <div className="hero-inner">
         <div className="hero-copy">
-          <span className="hero-eyebrow"><span className="dot"></span>Reformas en Málaga · Presupuesto cerrado</span>
+          <span className="hero-eyebrow">
+            <span className="dot"></span>Reformas en Málaga · Presupuesto cerrado
+          </span>
           <h1>
-            Tu última reforma fue <em className="hl-em">un desastre.</em><br />
+            Tu última reforma fue <em className="hl-pink">un desastre.</em><br />
             <span className="hl-teal">La siguiente no tiene por qué serlo.</span>
           </h1>
-          <p className="hero-lead">
-            Obtén un <span className="hl-accent">presupuesto en 24h</span> y alguien
-            trabajando en tu <span className="hl-accent-teal">reforma en 48h</span>.
-          </p>
           <p className="hero-sub">
-            Presupuesto cerrado, plazos firmados y un único interlocutor de
-            principio a fin. Cuéntanos tu proyecto hoy y mañana tenemos equipo
-            en tu casa.
+            En Ledens reformamos con presupuesto cerrado, plazos firmados y un único
+            interlocutor de principio a fin. Cuéntanos tu proyecto hoy y mañana
+            tenemos equipo en tu casa.
           </p>
           <div className="hero-cta-row">
             <button className="btn btn-lg btn-pink" onClick={onOpenLead}>
               <i className="ri-whatsapp-fill"></i> Pide tu presupuesto
             </button>
-            <a href="#proceso" className="btn btn-lg btn-outline">
+            <a href="#proceso" className="btn btn-lg btn-outline-light">
               Cómo funciona <i className="ri-arrow-down-line"></i>
             </a>
           </div>
