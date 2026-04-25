@@ -33,6 +33,7 @@
   display: flex; align-items: center;
   gap: clamp(16px, 2vw, 40px);
 }
+.nav-item { position: relative; }
 .nav a {
   font-weight: 700; font-size: 13px; letter-spacing: 0.02em;
   color: var(--ledens-blue);
@@ -42,6 +43,54 @@
 }
 .nav a:hover { color: var(--ledens-blue-700); }
 .nav a .chev { font-size: 14px; opacity: 0.7; }
+.nav-item-services .chev { transition: transform 180ms var(--ease); }
+.nav-item-services:hover .chev { transform: rotate(180deg); }
+.nav-menu {
+  position: absolute;
+  top: calc(100% + 14px);
+  left: 50%;
+  transform: translateX(-50%) translateY(8px);
+  min-width: 200px;
+  background: #fff;
+  border-radius: 12px;
+  border: 1px solid rgba(12,6,43,0.1);
+  box-shadow: 0 16px 42px rgba(12,6,43,0.16);
+  padding: 8px;
+  display: grid;
+  gap: 2px;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 180ms var(--ease), transform 180ms var(--ease), visibility 180ms var(--ease);
+  z-index: 20;
+}
+.nav-item-services::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 100%;
+  height: 16px;
+}
+.nav-item-services:hover .nav-menu {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: translateX(-50%) translateY(0);
+}
+.nav-menu-link {
+  width: 100%;
+  justify-content: flex-start;
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  letter-spacing: 0.01em;
+  font-weight: 600;
+}
+.nav-menu-link:hover {
+  background: var(--ledens-blue-050);
+  color: var(--ledens-blue);
+}
 .hdr-ctas { display: flex; gap: 10px; align-items: center; flex: 0 0 auto; }
 /* Match Clerk's UserButton avatar size to the sibling auth buttons (40px) */
 .hdr-ctas .cl-userButtonAvatarBox { width: 40px; height: 40px; }

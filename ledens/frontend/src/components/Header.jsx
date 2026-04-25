@@ -14,6 +14,17 @@ import logo from '../assets/logo-ledens-isotype.png';
 const CLERK_ENABLED = Boolean(import.meta.env.VITE_CLERK_PUBLISHABLE_KEY);
 
 export default function Header() {
+  const services = [
+    'Demolición',
+    'Fontanería',
+    'Electricidad',
+    'Climatización',
+    'Albañilería',
+    'Pladur',
+    'Carpintería',
+    'Alicatado',
+  ];
+
   return (
     <header className="hdr">
       <div className="hdr-inner">
@@ -26,7 +37,14 @@ export default function Header() {
           <span className="logo-tag">Reformas inteligentes</span>
         </div>
         <nav className="nav">
-          <a href="#compromisos">SERVICIOS <i className="ri-arrow-down-s-line chev"></i></a>
+          <div className="nav-item nav-item-services">
+            <a href="#compromisos">SERVICIOS <i className="ri-arrow-down-s-line chev"></i></a>
+            <div className="nav-menu" aria-label="Servicios">
+              {services.map((service) => (
+                <a key={service} href="#compromisos" className="nav-menu-link">{service}</a>
+              ))}
+            </div>
+          </div>
           <a href="#galeria">PROYECTOS</a>
           <a href="#proceso">CÓMO FUNCIONA</a>
           <a href="#testimonios">CASOS DE ÉXITO</a>
