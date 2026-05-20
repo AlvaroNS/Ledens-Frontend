@@ -17,6 +17,8 @@ import SsoCallback from './components/SsoCallback.jsx';
 import ServicioPage from './components/ServicioPage.jsx';
 import PrivacidadPage from './components/PrivacidadPage.jsx';
 import TerminosPage from './components/TerminosPage.jsx';
+import CookiesPage from './components/CookiesPage.jsx';
+import CookieConsent from './components/CookieConsent.jsx';
 
 /* The full landing page */
 function LandingPage({ onOpenLead }) {
@@ -66,6 +68,7 @@ export default function App() {
                 <Route path="/servicios/:slug" element={<ServicioPage onOpenLead={openLead} />} />
                 <Route path="/privacidad" element={<PrivacidadPage />} />
                 <Route path="/terminos" element={<TerminosPage />} />
+                <Route path="/cookies" element={<CookiesPage />} />
                 {/* Fallback: anything unknown → landing */}
                 <Route path="*" element={<LandingPage onOpenLead={openLead} />} />
               </Routes>
@@ -74,6 +77,8 @@ export default function App() {
           }
         />
       </Routes>
+      {/* Cookie consent modal — rendered on every page */}
+      <CookieConsent />
     </>
   );
 }

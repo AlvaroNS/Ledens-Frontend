@@ -35,7 +35,7 @@ export default function Footer() {
           <h5>Legal</h5>
           <Link to="/terminos">Términos y condiciones</Link>
           <Link to="/privacidad">Política de privacidad</Link>
-          <a href="#">Política de cookies</a>
+          <Link to="/cookies">Política de cookies</Link>
           <a href="#">Aviso legal</a>
         </div>
       </div>
