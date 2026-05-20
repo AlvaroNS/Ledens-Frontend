@@ -41,7 +41,7 @@ export default function Footer() {
       </div>
       <div className="foot-bottom">
         <div>© {new Date().getFullYear()} Ledens · Reformas inteligentes · Málaga, España</div>
-        <div>952 00 00 00 · hola@ledens.es</div>
+        <div>655 638 219 · hola@ledens.es</div>
       </div>
     </footer>
   );

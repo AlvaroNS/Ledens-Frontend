@@ -91,12 +91,12 @@ export default function PrivacidadPage() {
             <p>El responsable del tratamiento de tus datos personales es:</p>
             <table>
               <tbody>
-                <tr><th style={{ width: '42%' }}>Denominación social</th><td>Ledens Reformas, S.L. (en adelante, "Ledens")</td></tr>
-                <tr><th>NIF</th><td>B-00000000</td></tr>
-                <tr><th>Domicilio social</th><td>Calle Larios, 0, 29005 Málaga, España</td></tr>
-                <tr><th>Registro Mercantil</th><td>Registro Mercantil de Málaga, Tomo 0000, Folio 000, Hoja MA-000000</td></tr>
-                <tr><th>Email de contacto</th><td><a href="mailto:hola@ledens.es">hola@ledens.es</a></td></tr>
-                <tr><th>Teléfono</th><td>952 00 00 00</td></tr>
+                <tr><th style={{ width: '42%' }}>Denominación social</th><td>Sociedad Inversora Navarro Robinson S.L. (en adelante, "Ledens")</td></tr>
+                <tr><th>NIF</th><td>B19753805</td></tr>
+                <tr><th>Domicilio social</th><td>Avenida del Sor Teresa Prat 5, Polo Digital, Málaga</td></tr>
+                <tr><th>Registro Mercantil</th><td>S 8, H MA182799, I/A 1 (21.06.24)</td></tr>
+                <tr><th>Email de contacto</th><td><a href="mailto:alvaro.navarro@ledens.es">alvaro.navarro@ledens.es</a></td></tr>
+                <tr><th>Teléfono</th><td>655 638 219</td></tr>
                 <tr><th>Delegado de Protección de Datos (DPO)</th><td><a href="mailto:dpo@ledens.es">dpo@ledens.es</a></td></tr>
               </tbody>
             </table>
@@ -258,7 +258,7 @@ export default function PrivacidadPage() {
             <h3>¿Cómo ejercer tus derechos?</h3>
             <ul>
               <li>Enviar un email a <a href="mailto:dpo@ledens.es">dpo@ledens.es</a> indicando el derecho que ejerces y adjuntando copia de tu DNI o documento equivalente.</li>
-              <li>Escribir por correo postal a Ledens Reformas S.L., Calle Larios, 0, 29005 Málaga.</li>
+              <li>Escribir por correo postal a Sociedad Inversora Navarro Robinson S.L., Avenida del Sor Teresa Prat 5, Polo Digital, Málaga.</li>
               <li>Acceder a tu cuenta de cliente y usar las opciones de descarga y eliminación de datos.</li>
             </ul>
             <p>Resolveremos tu solicitud en el plazo máximo de <strong>un mes</strong>, prorrogable en dos meses adicionales en casos especialmente complejos (art. 12.3 RGPD).</p>
@@ -304,7 +304,7 @@ export default function PrivacidadPage() {
             </div>
             <div className="actions">
               <a href="mailto:dpo@ledens.es"><i className="ri-mail-line"></i> dpo@ledens.es</a>
-              <a href="tel:+34952000000"><i className="ri-phone-line"></i> 952 00 00 00</a>
+              <a href="tel:+34655638219"><i className="ri-phone-line"></i> 655 638 219</a>
             </div>
           </div>
 
@@ -315,7 +315,7 @@ export default function PrivacidadPage() {
 
       <a
         className="wa-float"
-        href="https://wa.me/34952000000"
+        href="https://wa.me/34655638219"
         target="_blank"
         rel="noopener noreferrer"
         aria-label="WhatsApp"

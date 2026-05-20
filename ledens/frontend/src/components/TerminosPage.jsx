@@ -94,12 +94,12 @@ export default function TerminosPage() {
             <p>En cumplimiento del artículo 10 de la Ley 34/2002 de Servicios de la Sociedad de la Información y Comercio Electrónico (LSSI-CE), se informa de los siguientes datos identificativos:</p>
             <table>
               <tbody>
-                <tr><th style={{ width: '42%' }}>Denominación social</th><td>Ledens Reformas, S.L.</td></tr>
-                <tr><th>NIF</th><td>B-00000000</td></tr>
-                <tr><th>Domicilio social</th><td>Calle Larios, 0, 29005 Málaga, España</td></tr>
-                <tr><th>Datos registrales</th><td>Registro Mercantil de Málaga, Tomo 0000, Folio 000, Hoja MA-000000</td></tr>
-                <tr><th>Email</th><td><a href="mailto:hola@ledens.es">hola@ledens.es</a></td></tr>
-                <tr><th>Teléfono</th><td>952 00 00 00</td></tr>
+                <tr><th style={{ width: '42%' }}>Denominación social</th><td>Sociedad Inversora Navarro Robinson S.L.</td></tr>
+                <tr><th>NIF</th><td>B19753805</td></tr>
+                <tr><th>Domicilio social</th><td>Avenida del Sor Teresa Prat 5, Polo Digital, Málaga</td></tr>
+                <tr><th>Datos registrales</th><td>S 8, H MA182799, I/A 1 (21.06.24)</td></tr>
+                <tr><th>Email</th><td><a href="mailto:alvaro.navarro@ledens.es">alvaro.navarro@ledens.es</a></td></tr>
+                <tr><th>Teléfono</th><td>655 638 219</td></tr>
                 <tr><th>Sitio web</th><td><a href="https://www.ledens.es" target="_blank" rel="noopener noreferrer">www.ledens.es</a></td></tr>
               </tbody>
             </table>
@@ -118,7 +118,7 @@ export default function TerminosPage() {
               <i className="ri-user-3-line"></i>
               <div>
                 <strong>Estos Términos se firman entre dos partes</strong>
-                "Nosotros", "Ledens" o "el prestador" se refiere a Ledens Reformas, S.L. "Tú", "el usuario"
+                "Nosotros", "Ledens" o "el prestador" se refiere a Sociedad Inversora Navarro Robinson S.L. "Tú", "el usuario"
                 o "el cliente" se refiere a la persona física o jurídica que utiliza la web o contrata los servicios.
               </div>
             </div>
@@ -237,7 +237,7 @@ export default function TerminosPage() {
               <i className="ri-double-quotes-l"></i>
               <div>
                 <em>
-                  A la atención de Ledens Reformas, S.L. (Calle Larios, 0, 29005 Málaga · hola@ledens.es):<br />
+                  A la atención de Sociedad Inversora Navarro Robinson S.L. (Avenida del Sor Teresa Prat 5, Polo Digital, Málaga · alvaro.navarro@ledens.es):<br />
                   Por la presente le comunico que desisto de mi contrato de reforma firmado el [fecha].<br />
                   Nombre del consumidor: [—] · Domicilio: [—] · Fecha: [—] · Firma (solo si se envía en papel).
                 </em>
@@ -378,7 +378,7 @@ export default function TerminosPage() {
             </div>
             <div className="actions">
               <a href="mailto:legal@ledens.es"><i className="ri-mail-line"></i> legal@ledens.es</a>
-              <a href="tel:+34952000000"><i className="ri-phone-line"></i> 952 00 00 00</a>
+              <a href="tel:+34655638219"><i className="ri-phone-line"></i> 655 638 219</a>
             </div>
           </div>
 
@@ -389,7 +389,7 @@ export default function TerminosPage() {
 
       <a
         className="wa-float"
-        href="https://wa.me/34952000000"
+        href="https://wa.me/34655638219"
         target="_blank"
         rel="noopener noreferrer"
         aria-label="WhatsApp"

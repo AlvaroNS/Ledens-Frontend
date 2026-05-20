@@ -10,8 +10,8 @@ export default function Cta({ onOpenLead }) {
           <button className="btn btn-lg btn-pink" onClick={onOpenLead}>
             <i className="ri-whatsapp-fill"></i> Escríbenos por WhatsApp
           </button>
-          <a href="tel:+34952000000" className="btn btn-lg btn-outline-light">
-            <i className="ri-phone-line"></i> Llámanos<span className="long-label">&nbsp;al 952 00 00 00</span>
+          <a href="tel:+34655638219" className="btn btn-lg btn-outline-light">
+            <i className="ri-phone-line"></i> Llámanos<span className="long-label">&nbsp;al 655 638 219</span>
           </a>
         </div>
         <div className="cta-note">Respuesta en menos de 1h · Visita y presupuesto gratis · Trabajamos en toda Málaga</div>

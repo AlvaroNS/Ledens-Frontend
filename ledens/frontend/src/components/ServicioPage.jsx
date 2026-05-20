@@ -188,8 +188,8 @@ export default function ServicioPage({ onOpenLead }) {
             <button className="btn btn-lg btn-pink" onClick={onOpenLead}>
               <i className="ri-whatsapp-fill"></i> Pide tu presupuesto
             </button>
-            <a className="btn btn-lg btn-outline-light" href="tel:+34952000000">
-              <i className="ri-phone-line"></i> 952 00 00 00
+            <a className="btn btn-lg btn-outline-light" href="tel:+34655638219">
+              <i className="ri-phone-line"></i> 655 638 219
             </a>
           </div>
           <div className="cta-note">
@@ -202,7 +202,7 @@ export default function ServicioPage({ onOpenLead }) {
 
       <a
         className="wa-float"
-        href="https://wa.me/34952000000"
+        href="https://wa.me/34655638219"
         target="_blank"
         rel="noopener noreferrer"
         aria-label="WhatsApp"

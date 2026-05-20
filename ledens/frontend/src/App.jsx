@@ -34,7 +34,7 @@ function LandingPage({ onOpenLead }) {
       <Footer />
       <a
         className="wa-float"
-        href="https://wa.me/34952000000"
+        href="https://wa.me/34655638219"
         target="_blank"
         rel="noopener noreferrer"
         aria-label="WhatsApp"

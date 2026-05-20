@@ -538,7 +538,7 @@ footer { background: var(--ledens-navy); color: rgba(255,255,255,0.8); padding: 
   }
   .btn-lg { height: 50px; padding: 0 14px; font-size: 14px; }
   .btn-sm { padding: 0 10px; font-size: 11.5px; }
-  /* Hide the "952 00 00 00" tail on mobile so the button label still fits two-up */
+  /* Hide the "655 638 219" tail on mobile so the button label still fits two-up */
   .cta-row .btn .long-label { display: none; }
 
   .problema-grid { grid-template-columns: 1fr; }
