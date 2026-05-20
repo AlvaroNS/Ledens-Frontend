@@ -33,9 +33,10 @@ export default function Footer() {
         </div>
         <div className="foot-col">
           <h5>Legal</h5>
+          <Link to="/terminos">Términos y condiciones</Link>
+          <Link to="/privacidad">Política de privacidad</Link>
+          <a href="#">Política de cookies</a>
           <a href="#">Aviso legal</a>
-          <a href="#">Privacidad</a>
-          <a href="#">Cookies</a>
         </div>
       </div>
       <div className="foot-bottom">
