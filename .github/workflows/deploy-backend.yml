@@ -44,7 +44,9 @@ jobs:
 
       # ── 3. Authenticate Docker against ACR ────────────────────────────────
       - name: Login to ACR
-        run: az acr login --name ${{ env.ACR_NAME }}
+        # Use the full login-server URL — bypasses the alphanumeric-name-only
+        # validation in az acr login that rejects hyphens.
+        run: az acr login --name ${{ env.REGISTRY }}
 
       # ── 4. Build & push — sha tag + latest ────────────────────────────────
       - name: Build and push image

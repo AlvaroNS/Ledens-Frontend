@@ -16,7 +16,7 @@
 set -euo pipefail
 
 # ── ❶  CONFIGURATION — edit these before running ──────────────────────────
-SUBSCRIPTION="REPLACE_WITH_YOUR_SUBSCRIPTION_ID"   # az account list -o table
+SUBSCRIPTION="550f2d00-7d8d-4699-8b84-6eccff979f88"   # az account list -o table
 RESOURCE_GROUP="rg-ledens-mvp"
 LOCATION="westeurope"                              # az account list-locations -o table
 
@@ -29,7 +29,7 @@ ACA_NAME="ledens-backend"
 
 # Your Static Web App name — find it with:
 #   az staticwebapp list -g rg-ledens-mvp --query "[].name" -o tsv
-SWA_NAME="REPLACE_WITH_YOUR_SWA_NAME"
+SWA_NAME="webapp-ledens-landing-1"
 
 # Storage account for leads.jsonl persistence (3–24 lowercase alphanumeric)
 STORAGE_ACCOUNT="ledensdatamvp1"   # must be globally unique — change if taken
@@ -58,7 +58,9 @@ ok "Subscription set"
 
 # ── ❹  Build & push the initial Docker image to ACR ─────────────────────
 log "Building and pushing ${IMAGE}"
-az acr login --name "$ACR_NAME"
+# Pass the full login-server URL — az acr login also accepts this format and
+# avoids the alphanumeric-only validation that rejects hyphens in the name.
+az acr login --name "$REGISTRY"
 
 # Build from the backend directory (repo root assumed as CWD)
 docker build \
@@ -169,10 +171,9 @@ PRINCIPAL_ID=$(az containerapp identity show \
   --resource-group "$RESOURCE_GROUP" \
   --query          "principalId" --output tsv)
 
-ACR_ID=$(az acr show \
-  --name           "$ACR_NAME" \
-  --resource-group "$RESOURCE_GROUP" \
-  --query          "id" --output tsv)
+# Construct the resource ID directly — avoids az acr show --name validation
+# rejecting hyphens in the registry name.
+ACR_ID="/subscriptions/${SUBSCRIPTION}/resourceGroups/${RESOURCE_GROUP}/providers/Microsoft.ContainerRegistry/registries/${ACR_NAME}"
 
 az role assignment create \
   --role       AcrPull \
