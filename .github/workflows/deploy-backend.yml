@@ -1,0 +1,94 @@
+# ── Deploy Backend ─────────────────────────────────────────────────────────
+# Builds the Express Docker image, pushes it to Azure Container Registry,
+# and rolls out a new revision in Azure Container Apps.
+#
+# Required GitHub Secrets:
+#   AZURE_CREDENTIALS   – Service principal JSON produced by:
+#                         az ad sp create-for-rbac --name sp-ledens-github \
+#                           --role Contributor \
+#                           --scopes /subscriptions/<SUB>/resourceGroups/rg-ledens-mvp \
+#                           --sdk-auth
+# ──────────────────────────────────────────────────────────────────────────
+
+name: Deploy Backend
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'ledens/backend/**'
+      - '.github/workflows/deploy-backend.yml'
+  workflow_dispatch:       # allow manual trigger from GitHub UI
+
+env:
+  REGISTRY:            cregledensmvp1-f0b3hcbabag9d3dp.azurecr.io
+  IMAGE_NAME:          ledens-backend
+  RESOURCE_GROUP:      rg-ledens-mvp
+  CONTAINER_APP_NAME:  ledens-backend
+  ACR_NAME:            cregledensmvp1-f0b3hcbabag9d3dp
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # ── 1. Source ──────────────────────────────────────────────────────────
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # ── 2. Azure login (service principal) ────────────────────────────────
+      - name: Login to Azure
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      # ── 3. Authenticate Docker against ACR ────────────────────────────────
+      - name: Login to ACR
+        run: az acr login --name ${{ env.ACR_NAME }}
+
+      # ── 4. Build & push — sha tag + latest ────────────────────────────────
+      - name: Build and push image
+        run: |
+          SHA_TAG="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}"
+          LATEST_TAG="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest"
+
+          docker build \
+            --label "git.sha=${{ github.sha }}" \
+            --label "git.ref=${{ github.ref }}" \
+            -t "$SHA_TAG" \
+            -t "$LATEST_TAG" \
+            ledens/backend
+
+          docker push "$SHA_TAG"
+          docker push "$LATEST_TAG"
+
+          echo "IMAGE_TAG=$SHA_TAG" >> "$GITHUB_ENV"
+
+      # ── 5. Roll out new revision in Container Apps ────────────────────────
+      - name: Deploy to Azure Container Apps
+        run: |
+          az containerapp update \
+            --name      "${{ env.CONTAINER_APP_NAME }}" \
+            --resource-group "${{ env.RESOURCE_GROUP }}" \
+            --image     "${{ env.IMAGE_TAG }}"
+
+      # ── 6. Smoke-test the health endpoint ─────────────────────────────────
+      - name: Health check
+        run: |
+          FQDN=$(az containerapp show \
+            --name "${{ env.CONTAINER_APP_NAME }}" \
+            --resource-group "${{ env.RESOURCE_GROUP }}" \
+            --query "properties.configuration.ingress.fqdn" \
+            --output tsv)
+
+          echo "Backend FQDN: $FQDN"
+
+          # Retry up to 10 times — new revision may take a few seconds
+          for i in $(seq 1 10); do
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+              "https://${FQDN}/api/health" || echo "000")
+            echo "Attempt $i: HTTP $STATUS"
+            [ "$STATUS" = "200" ] && exit 0
+            sleep 6
+          done
+          echo "Health check failed after 10 attempts" && exit 1

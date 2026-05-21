@@ -3,9 +3,14 @@ name: Azure Static Web Apps CI/CD
 on:
   push:
     branches: [main]
+    paths:
+      - 'ledens/frontend/**'
+      - '.github/workflows/azure-static-web-apps.yml'
   pull_request:
     types: [opened, synchronize, reopened, closed]
     branches: [main]
+    paths:
+      - 'ledens/frontend/**'
 
 jobs:
   build_and_deploy:
