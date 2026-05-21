@@ -15,12 +15,20 @@
 # ══════════════════════════════════════════════════════════════════════════════
 set -euo pipefail
 
+# ── Always run from the repository root ──────────────────────────────────
+# The script lives at ledens/infra/setup.sh inside the repo, so two levels
+# up is the root regardless of the caller's working directory.
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
+cd "$REPO_ROOT"
+echo "Working directory: $REPO_ROOT"
+
 # ── ❶  CONFIGURATION — edit these before running ──────────────────────────
 SUBSCRIPTION="550f2d00-7d8d-4699-8b84-6eccff979f88"   # az account list -o table
 RESOURCE_GROUP="rg-ledens-mvp"
 LOCATION="westeurope"                              # az account list-locations -o table
 
-ACR_NAME="cregledensmvp1-f0b3hcbabag9d3dp"
+ACR_NAME="cregledensmvp1"
 IMAGE_NAME="ledens-backend"
 IMAGE_TAG="latest"
 
@@ -60,16 +68,13 @@ ok "Subscription set"
 log "Building and pushing ${IMAGE}"
 # Pass the full login-server URL — az acr login also accepts this format and
 # avoids the alphanumeric-only validation that rejects hyphens in the name.
-az acr login --name "$REGISTRY"
 
 # Build from the backend directory (repo root assumed as CWD)
-docker build \
-  --label "provisioned-by=infra/setup.sh" \
-  -t "${REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}" \
+az acr build \
+  --registry    "$ACR_NAME" \
+  --image       "${IMAGE_NAME}:${IMAGE_TAG}" \
+  --platform    linux/amd64 \
   ledens/backend
-
-docker push "${REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}"
-ok "Image pushed to ACR"
 
 # ── ❺  Create ACA Environment (shared infrastructure layer) ──────────────
 log "Creating Container Apps Environment: ${ACA_ENV_NAME}"
