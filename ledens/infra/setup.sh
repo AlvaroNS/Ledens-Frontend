@@ -15,11 +15,39 @@
 # ══════════════════════════════════════════════════════════════════════════════
 set -euo pipefail
 
-# ── Always run from the repository root ──────────────────────────────────
-# The script lives at ledens/infra/setup.sh inside the repo, so two levels
-# up is the root regardless of the caller's working directory.
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-REPO_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
+# ── Locate the repository source ─────────────────────────────────────────
+# Works whether you run this from inside a local clone or from Azure Cloud
+# Shell (where the repo hasn't been cloned yet).
+#
+# Priority:
+#   1. Current directory already contains ledens/backend  → use it as-is
+#   2. Script is inside a git clone (BASH_SOURCE two levels up)           → cd there
+#   3. Neither  → shallow-clone into /tmp and use that
+#
+GITHUB_REPO="https://github.com/AlvaroNS/Ledens-Frontend.git"
+
+_locate_repo() {
+  # Case 1: running from the repo root already
+  if [ -d "ledens/backend" ]; then
+    echo "$(pwd)"; return
+  fi
+
+  # Case 2: script was sourced / invoked from inside the clone
+  local script_dir
+  script_dir="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" 2>/dev/null && pwd || echo "")"
+  if [ -n "$script_dir" ] && [ -d "${script_dir}/../../ledens/backend" ]; then
+    echo "$(cd "${script_dir}/../.." && pwd)"; return
+  fi
+
+  # Case 3: Cloud Shell / no local clone — do a shallow clone
+  local clone_dir
+  clone_dir="$(mktemp -d /tmp/ledens-XXXXXX)"
+  echo -e "\n\033[1;33m⚠  Repository not found locally — cloning into ${clone_dir}\033[0m" >&2
+  git clone --depth 1 "$GITHUB_REPO" "$clone_dir" >&2
+  echo "$clone_dir"
+}
+
+REPO_ROOT="$(_locate_repo)"
 cd "$REPO_ROOT"
 echo "Working directory: $REPO_ROOT"
 
