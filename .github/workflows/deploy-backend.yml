@@ -25,7 +25,7 @@ env:
   IMAGE_NAME:          ledens-backend
   RESOURCE_GROUP:      rg-ledens-mvp
   CONTAINER_APP_NAME:  ledens-backend
-  ACR_NAME:            cregledensmvp1-f0b3hcbabag9d3dp
+  ACR_NAME:            cregledensmvp1
 
 jobs:
   build-and-deploy:
