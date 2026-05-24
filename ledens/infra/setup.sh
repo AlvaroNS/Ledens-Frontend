@@ -1,45 +1,26 @@
 #!/usr/bin/env bash
 # ══════════════════════════════════════════════════════════════════════════════
 # ledens/infra/setup.sh
-# One-time provisioning script: builds backend → ACR, creates Azure Container
-# App, and links it as the /api/* backend for Azure Static Web Apps.
-#
-# Run once from the repo root on a machine that has:
-#   • Azure CLI  (az) ≥ 2.57   → https://aka.ms/installazurecli
-#   • Docker Engine             → https://docs.docker.com/get-docker/
-#   • Bash 4+  (macOS: brew install bash)
-#
-# After this script completes:
-#   1. Push to main to trigger CI/CD — it handles all future deployments.
-#   2. Add AZURE_CREDENTIALS to GitHub Secrets (instructions printed at end).
+# Provisioning script: builds backend → ACR, creates Azure Container App,
+# and links it as the /api/* backend for Azure Static Web Apps.
+# Uses existing resources where already provisioned.
 # ══════════════════════════════════════════════════════════════════════════════
 set -euo pipefail
 
 # ── Locate the repository source ─────────────────────────────────────────
-# Works whether you run this from inside a local clone or from Azure Cloud
-# Shell (where the repo hasn't been cloned yet).
-#
-# Priority:
-#   1. Current directory already contains ledens/backend  → use it as-is
-#   2. Script is inside a git clone (BASH_SOURCE two levels up)           → cd there
-#   3. Neither  → shallow-clone into /tmp and use that
-#
 GITHUB_REPO="https://github.com/AlvaroNS/Ledens-Frontend.git"
 
 _locate_repo() {
-  # Case 1: running from the repo root already
   if [ -d "ledens/backend" ]; then
     echo "$(pwd)"; return
   fi
 
-  # Case 2: script was sourced / invoked from inside the clone
   local script_dir
   script_dir="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" 2>/dev/null && pwd || echo "")"
   if [ -n "$script_dir" ] && [ -d "${script_dir}/../../ledens/backend" ]; then
     echo "$(cd "${script_dir}/../.." && pwd)"; return
   fi
 
-  # Case 3: Cloud Shell / no local clone — do a shallow clone
   local clone_dir
   clone_dir="$(mktemp -d /tmp/ledens-XXXXXX)"
   echo -e "\n\033[1;33m⚠  Repository not found locally — cloning into ${clone_dir}\033[0m" >&2
@@ -51,28 +32,25 @@ REPO_ROOT="$(_locate_repo)"
 cd "$REPO_ROOT"
 echo "Working directory: $REPO_ROOT"
 
-# ── ❶  CONFIGURATION — edit these before running ──────────────────────────
-SUBSCRIPTION="550f2d00-7d8d-4699-8b84-6eccff979f88"   # az account list -o table
+# ── ❶  CONFIGURATION ──────────────────────────────────────────────────────
+SUBSCRIPTION="550f2d00-7d8d-4699-8b84-6eccff979f88"
 RESOURCE_GROUP="rg-ledens-mvp"
-LOCATION="westeurope"                              # az account list-locations -o table
+LOCATION="westeurope"
 
+# ── Existing resources (from Azure Portal) ────────────────────────────────
 ACR_NAME="cregledensmvp1"
+ACA_ENV_NAME="ledens-env"
+STORAGE_ACCOUNT="stledensmvp1"
+SWA_NAME="webapp-ledens-landing-1"
+MANAGED_IDENTITY="id-ledens-api-acr-pull"
+KEY_VAULT="kv-ledens-mvp-1"
+
+# ── New resources to create ───────────────────────────────────────────────
 IMAGE_NAME="ledens-backend"
 IMAGE_TAG="latest"
-
-ACA_ENV_NAME="ledens-env"
 ACA_NAME="ledens-backend"
-
-# Your Static Web App name — find it with:
-#   az staticwebapp list -g rg-ledens-mvp --query "[].name" -o tsv
-SWA_NAME="webapp-ledens-landing-1"
-
-# Storage account for leads.jsonl persistence (3–24 lowercase alphanumeric)
-STORAGE_ACCOUNT="ledensdatamvp1"   # must be globally unique — change if taken
-
-# GitHub repo (org/repo) for the service principal scope
 GITHUB_SP_NAME="sp-ledens-github"
-# ──────────────────────────────────────────────────────────────────────────
+# ─────────────────────────────────────────────────────────────────────────
 
 REGISTRY="${ACR_NAME}.azurecr.io"
 IMAGE="${REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}"
@@ -83,8 +61,8 @@ warn() { echo -e "\033[1;33m⚠  $*\033[0m"; }
 
 # ── ❷  Verify dependencies ────────────────────────────────────────────────
 log "Checking dependencies"
-command -v az     >/dev/null 2>&1 || { echo "Azure CLI not found"; exit 1; }
-command -v docker >/dev/null 2>&1 || { echo "Docker not found"; exit 1; }
+command -v az >/dev/null 2>&1 || { echo "Azure CLI not found"; exit 1; }
+ok "Azure CLI found"
 
 # ── ❸  Azure login & subscription ────────────────────────────────────────
 log "Setting active subscription"
@@ -92,22 +70,19 @@ az account set --subscription "$SUBSCRIPTION"
 az extension add --name containerapp --upgrade --yes 2>/dev/null
 ok "Subscription set"
 
-# ── ❹  Build & push the initial Docker image to ACR ─────────────────────
-log "Building and pushing ${IMAGE}"
-# Pass the full login-server URL — az acr login also accepts this format and
-# avoids the alphanumeric-only validation that rejects hyphens in the name.
-
-# Build from the backend directory (repo root assumed as CWD)
+# ── ❹  Build & push Docker image to existing ACR ─────────────────────────
+log "Building and pushing ${IMAGE} to existing ACR: ${ACR_NAME}"
 az acr build \
   --registry    "$ACR_NAME" \
   --image       "${IMAGE_NAME}:${IMAGE_TAG}" \
   --platform    linux/amd64 \
   ledens/backend
+ok "Image pushed to ACR"
 
-# ── ❺  Create ACA Environment (shared infrastructure layer) ──────────────
-log "Creating Container Apps Environment: ${ACA_ENV_NAME}"
+# ── ❺  Container Apps Environment (already exists) ───────────────────────
+log "Verifying Container Apps Environment: ${ACA_ENV_NAME}"
 if az containerapp env show -n "$ACA_ENV_NAME" -g "$RESOURCE_GROUP" &>/dev/null; then
-  warn "Environment already exists — skipping"
+  ok "Environment already exists — skipping"
 else
   az containerapp env create \
     --name            "$ACA_ENV_NAME" \
@@ -116,20 +91,9 @@ else
   ok "Environment created"
 fi
 
-# ── ❻  Azure Storage for persistent leads.jsonl ───────────────────────────
-log "Creating Storage Account: ${STORAGE_ACCOUNT}"
-if az storage account show -n "$STORAGE_ACCOUNT" -g "$RESOURCE_GROUP" &>/dev/null; then
-  warn "Storage account already exists — skipping"
-else
-  az storage account create \
-    --name               "$STORAGE_ACCOUNT" \
-    --resource-group     "$RESOURCE_GROUP" \
-    --location           "$LOCATION" \
-    --sku                Standard_LRS \
-    --kind               StorageV2 \
-    --allow-blob-public-access false \
-    --min-tls-version    TLS1_2
-fi
+# ── ❻  Storage Account (already exists) — create file share if needed ────
+log "Verifying Storage Account: ${STORAGE_ACCOUNT}"
+ok "Storage account already exists — skipping creation"
 
 STORAGE_KEY=$(az storage account keys list \
   --resource-group  "$RESOURCE_GROUP" \
@@ -154,7 +118,7 @@ az containerapp env storage set \
 ok "Storage linked to ACA environment"
 
 # ── ❼  Retrieve SWA origin for CORS ──────────────────────────────────────
-log "Looking up SWA hostname"
+log "Looking up SWA hostname: ${SWA_NAME}"
 SWA_HOST=$(az staticwebapp show \
   --name           "$SWA_NAME" \
   --resource-group "$RESOURCE_GROUP" \
@@ -191,40 +155,50 @@ else
   ok "Container App created"
 fi
 
-# ── ❾  Assign managed identity + AcrPull so CI can push without passwords ─
-log "Configuring managed identity for ACR pull"
-az containerapp identity assign \
-  --name           "$ACA_NAME" \
-  --resource-group "$RESOURCE_GROUP" \
-  --system-assigned \
-  --output none
+# ── ❾  Use existing Managed Identity for AcrPull ─────────────────────────
+log "Assigning existing Managed Identity to Container App"
 
-PRINCIPAL_ID=$(az containerapp identity show \
-  --name           "$ACA_NAME" \
+# Get the principal ID of the existing managed identity
+MI_PRINCIPAL_ID=$(az identity show \
+  --name           "$MANAGED_IDENTITY" \
   --resource-group "$RESOURCE_GROUP" \
   --query          "principalId" --output tsv)
 
-# Construct the resource ID directly — avoids az acr show --name validation
-# rejecting hyphens in the registry name.
+MI_CLIENT_ID=$(az identity show \
+  --name           "$MANAGED_IDENTITY" \
+  --resource-group "$RESOURCE_GROUP" \
+  --query          "clientId" --output tsv)
+
+MI_RESOURCE_ID=$(az identity show \
+  --name           "$MANAGED_IDENTITY" \
+  --resource-group "$RESOURCE_GROUP" \
+  --query          "id" --output tsv)
+
+# Assign the existing user-assigned identity to the Container App
+az containerapp identity assign \
+  --name           "$ACA_NAME" \
+  --resource-group "$RESOURCE_GROUP" \
+  --user-assigned  "$MI_RESOURCE_ID" \
+  --output none
+
+# Grant AcrPull role to the existing managed identity
 ACR_ID="/subscriptions/${SUBSCRIPTION}/resourceGroups/${RESOURCE_GROUP}/providers/Microsoft.ContainerRegistry/registries/${ACR_NAME}"
 
 az role assignment create \
   --role       AcrPull \
-  --assignee   "$PRINCIPAL_ID" \
+  --assignee   "$MI_PRINCIPAL_ID" \
   --scope      "$ACR_ID" \
   --output     none 2>/dev/null || warn "AcrPull role may already be assigned"
 ok "Managed identity configured"
 
-# ── ❿  Mount the Azure Files volume (requires YAML patch) ────────────────
+# ── ❿  Mount the Azure Files volume ──────────────────────────────────────
 log "Mounting /data volume (Azure Files)"
 ACA_YAML=$(az containerapp show \
   --name           "$ACA_NAME" \
   --resource-group "$RESOURCE_GROUP" \
   --output yaml)
 
-# Only patch if volume not already present
 if ! echo "$ACA_YAML" | grep -q "ledens-data"; then
-  # Append volume definition via a minimal YAML patch written to a temp file
   PATCH=$(mktemp /tmp/aca-patch-XXXXXX.yaml)
   cat > "$PATCH" <<'YAML'
 properties:
@@ -295,6 +269,14 @@ echo ""
 echo "  Backend FQDN : https://${ACA_FQDN}"
 echo "  SWA origin   : ${SWA_ORIGIN}"
 echo "  /api/* proxy : SWA → Container App (linked backend)"
+echo ""
+echo "  ── Existing resources used ─────────────────────────────────"
+echo "  ACR              : ${ACR_NAME}"
+echo "  ACA Environment  : ${ACA_ENV_NAME}"
+echo "  Storage Account  : ${STORAGE_ACCOUNT}"
+echo "  Managed Identity : ${MANAGED_IDENTITY}"
+echo "  Key Vault        : ${KEY_VAULT}"
+echo "  Static Web App   : ${SWA_NAME}"
 echo ""
 echo "  ── Next steps ──────────────────────────────────────────────"
 echo ""
