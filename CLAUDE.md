@@ -1,5 +1,7 @@
 # Ledens — Architecture & Development Guide
 
+<!-- verified: dev environment + push access confirmed 2026-08-20 -->
+
 ## Project Overview
 Ledens is a lead-capture landing page for a home-renovation company (Sociedad Inversora Navarro Robinson S.L., Málaga).
 It is a separated frontend/backend deployment on Azure:
