@@ -203,6 +203,7 @@ docker compose up --build         # frontend on :8080, backend on :4000
 |---|---|
 | `ledens/infra/setup.sh` | First-time provisioning of a new subscription. Builds the image, creates all Azure resources. |
 | `ledens/infra/setup2.sh` | Recovery: re-creates `ledens-env` linked to the correct Log Analytics workspace without rebuilding the image. |
+| `ledens/infra/deploy-new-subscription.sh` | Provisions the full stack from scratch in an empty subscription (`rg-ledens`, tagged `proyecto=ledens`) with cost guardrails: Log Analytics 0.5 GB/day cap, ACR Basic, 1–2 replicas, RG budget. Prints the two GitHub secrets at the end. |
 
 Both scripts auto-detect ACR name and login-server dynamically via `az acr list` — no hardcoded ACR URL.
 
