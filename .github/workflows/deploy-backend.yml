@@ -74,21 +74,22 @@ jobs:
             --resource-group "${{ env.RESOURCE_GROUP }}" \
             --image     "${{ env.IMAGE_TAG }}"
 
-      # ── 6. Smoke-test the health endpoint ─────────────────────────────────
+      # ── 6. Smoke-test the health endpoint through SWA ─────────────────────
+      # The Container App is a SWA linked backend, so direct calls to its FQDN
+      # are rejected with 401; /api/* is only reachable via the SWA hostname.
       - name: Health check
         run: |
-          FQDN=$(az containerapp show \
-            --name "${{ env.CONTAINER_APP_NAME }}" \
+          SWA_HOST=$(az staticwebapp list \
             --resource-group "${{ env.RESOURCE_GROUP }}" \
-            --query "properties.configuration.ingress.fqdn" \
+            --query "[0].defaultHostname" \
             --output tsv)
 
-          echo "Backend FQDN: $FQDN"
+          echo "Health URL: https://${SWA_HOST}/api/health"
 
           # Retry up to 10 times — new revision may take a few seconds
           for i in $(seq 1 10); do
             STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
-              "https://${FQDN}/api/health" || echo "000")
+              "https://${SWA_HOST}/api/health" || echo "000")
             echo "Attempt $i: HTTP $STATUS"
             [ "$STATUS" = "200" ] && exit 0
             sleep 6
