@@ -103,7 +103,7 @@ if ! az postgres flexible-server show -g "$RESOURCE_GROUP" -n "$PG_SERVER" &>/de
   az postgres flexible-server create -g "$RESOURCE_GROUP" -n "$PG_SERVER" -l "$LOCATION" \
     --tier Burstable --sku-name Standard_B1ms --storage-size 32 --version 16 \
     --admin-user "$PG_ADMIN" --admin-password "$NEW_PASSWORD" \
-    --public-access None --backup-retention 7 \
+    --public-access Enabled --backup-retention 7 \
     --tags "${TAGS[@]}" --yes -o none
 elif [ -n "$NEW_PASSWORD" ]; then
   warn "Server exists but database-url is missing — resetting the admin password"
@@ -122,6 +122,13 @@ ok "Server ${PG_HOST}, database ${PG_DATABASE}"
 
 # ── ❹  Firewall: only the Container App's outbound IPs ───────────────────────
 log "Postgres firewall ← ${ACA_NAME} outbound IPs"
+# Public endpoint with no rules = deny all; the rules below open it only to the
+# Container App. (Some CLI versions ignore --public-access on create.)
+if [ "$(az postgres flexible-server show -g "$RESOURCE_GROUP" -n "$PG_SERVER" \
+        --query network.publicNetworkAccess -o tsv)" != "Enabled" ]; then
+  az postgres flexible-server update -g "$RESOURCE_GROUP" -n "$PG_SERVER" \
+    --public-access Enabled -o none
+fi
 for rule in $(az postgres flexible-server firewall-rule list -g "$RESOURCE_GROUP" --server-name "$PG_SERVER" \
                 --query "[?starts_with(name, 'aca-out-')].name" -o tsv); do
   az postgres flexible-server firewall-rule delete -g "$RESOURCE_GROUP" --server-name "$PG_SERVER" \
