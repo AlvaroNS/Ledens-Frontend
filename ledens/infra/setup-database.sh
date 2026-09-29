@@ -134,10 +134,14 @@ for rule in $(az postgres flexible-server firewall-rule list -g "$RESOURCE_GROUP
   az postgres flexible-server firewall-rule delete -g "$RESOURCE_GROUP" --server-name "$PG_SERVER" \
     --name "$rule" --yes -o none
 done
+OUTBOUND_IPS=$(az containerapp show -n "$ACA_NAME" -g "$RESOURCE_GROUP" \
+                --query "properties.outboundIpAddresses[]" -o tsv)
+TOTAL=$(echo "$OUTBOUND_IPS" | wc -w)
+echo "Adding ${TOTAL} rule(s) — each takes ~30-60 s, Postgres applies them one at a time"
 i=0
-for ip in $(az containerapp show -n "$ACA_NAME" -g "$RESOURCE_GROUP" \
-              --query "properties.outboundIpAddresses[]" -o tsv); do
+for ip in $OUTBOUND_IPS; do
   i=$((i + 1))
+  echo "  [${i}/${TOTAL}] ${ip}"
   az postgres flexible-server firewall-rule create -g "$RESOURCE_GROUP" --server-name "$PG_SERVER" \
     --name "aca-out-${i}" --start-ip-address "$ip" --end-ip-address "$ip" -o none
 done
