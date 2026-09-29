@@ -86,7 +86,7 @@ export default function Header() {
             <>
               <SignedOut>
                 <Link to="/auth" className="btn btn-sm btn-outline">INICIA SESIÓN</Link>
-                <Link to="/auth?mode=signup" className="btn btn-sm btn-blue">REGÍSTRATE</Link>
+                <Link to="/registro" className="btn btn-sm btn-blue">REGÍSTRATE</Link>
               </SignedOut>
               <SignedIn>
                 <UserButton afterSignOutUrl="/" />
@@ -95,7 +95,7 @@ export default function Header() {
           ) : (
             <>
               <Link to="/auth" className="btn btn-sm btn-outline">INICIA SESIÓN</Link>
-              <Link to="/auth?mode=signup" className="btn btn-sm btn-blue">REGÍSTRATE</Link>
+              <Link to="/registro" className="btn btn-sm btn-blue">REGÍSTRATE</Link>
             </>
           )}
         </div>
