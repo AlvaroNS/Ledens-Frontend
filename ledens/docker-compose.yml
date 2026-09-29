@@ -8,8 +8,33 @@ services:
       PORT: 4000
       CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:8080}
       DATA_DIR: /data
+      DATABASE_URL: postgresql://ledens:${POSTGRES_PASSWORD:-ledens-local}@db:5432/ledens
+      JWT_SECRET: ${JWT_SECRET:-local-dev-only-change-me}
+    depends_on:
+      db:
+        condition: service_healthy
     volumes:
       - ledens-data:/data
+    networks:
+      - ledens-net
+
+  db:
+    image: postgres:16-alpine
+    container_name: ledens-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ledens
+      POSTGRES_USER: ledens
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-ledens-local}
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - ledens-db:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ledens -d ledens"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
     networks:
       - ledens-net
 
@@ -33,3 +58,4 @@ networks:
 
 volumes:
   ledens-data:
+  ledens-db:

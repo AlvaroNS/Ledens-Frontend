@@ -71,6 +71,15 @@ Browser
 | Key Vault | `kv-ledens-mvp-1` | Available for secrets (not yet actively used) |
 | Subscription ID | `550f2d00-7d8d-4699-8b84-6eccff979f88` | MCAPS-Support-alvaron |
 
+### New subscription (`Ledens-subscription-1`, `ee069061-db06-4a57-8ce7-c752a2985d27`)
+Provisioned by `deploy-new-subscription.sh` + `setup-database.sh` in `rg-ledens` (tag `proyecto=ledens`). `<sfx>` = first 8 hex chars of the subscription id (`ee069061`).
+
+| Resource | Name | Notes |
+|---|---|---|
+| PostgreSQL Flexible Server | `psql-ledens-<sfx>` | PG 16, Burstable B1ms, 32 GB, db `ledens`; firewall allows only the Container App outbound IPs |
+| Key Vault | `kv-ledens-<sfx>` | RBAC mode. Secrets: `database-url`, `jwt-secret`, OAuth placeholders (`google-*`, `microsoft-*`, `apple-*` = `CHANGE_ME`) |
+| Managed Identity | `id-ledens-backend` | Key Vault Secrets User; attached to `ledens-backend` for secret references |
+
 ---
 
 ## Backend (ledens/backend)
@@ -83,7 +92,7 @@ Browser
 
 | Method | Path | Description |
 |---|---|---|
-| GET | `/api/health` | Health check — returns `{ status: "ok" }` |
+| GET | `/api/health` | Health check — returns `{ status: "ok", db: "ok" \| "disabled" \| "error" }` |
 | POST | `/api/contact` | Lead capture — appends to `/data/leads.jsonl` |
 
 ### Contact endpoint payload
@@ -98,6 +107,14 @@ Browser
 | `PORT` | `4000` | Set in ACA |
 | `CORS_ORIGIN` | `https://wonderful-mushroom-01c0aee03.7.azurestaticapps.net` | Set in ACA (SWA hostname) |
 | `DATA_DIR` | `/data` | Set in ACA |
+| `DATABASE_URL` | `secretref:database-url` | Key Vault → ACA secret (optional: without it DB features are disabled) |
+| `JWT_SECRET` | `secretref:jwt-secret` | Key Vault → ACA secret |
+
+### Database & migrations
+- `src/db/index.js` exports a `pg` pool (`pool`, `null` when `DATABASE_URL` is unset) and `migrate()`.
+- On startup the backend applies `src/db/migrations/*.sql` in filename order, once each, tracked in `schema_migrations` and guarded by an advisory lock (safe with several replicas). A DB failure is logged but never blocks `/api/contact`.
+- New schema change → add `NNN_description.sql`; never edit an applied migration.
+- `001_users.sql`: `users` (uuid id, unique `lower(email)`, nullable `password_hash`, `provider` local/google/microsoft/apple + unique `(provider, provider_id)`).
 
 ### Adding a new backend route
 1. Create `ledens/backend/src/routes/myroute.js` (export a Router)
@@ -203,6 +220,7 @@ docker compose up --build         # frontend on :8080, backend on :4000
 |---|---|
 | `ledens/infra/setup.sh` | First-time provisioning of a new subscription. Builds the image, creates all Azure resources. |
 | `ledens/infra/setup2.sh` | Recovery: re-creates `ledens-env` linked to the correct Log Analytics workspace without rebuilding the image. |
+| `ledens/infra/setup-database.sh` | Adds PostgreSQL + Key Vault + backend identity to `rg-ledens` and wires `DATABASE_URL`/`JWT_SECRET` into the Container App. Re-run to refresh the Postgres firewall if the app's outbound IPs change. |
 | `ledens/infra/deploy-new-subscription.sh` | Provisions the full stack from scratch in an empty subscription (`rg-ledens`, tagged `proyecto=ledens`) with cost guardrails: Log Analytics 0.5 GB/day cap, ACR Basic, 1–2 replicas, RG budget. Prints the two GitHub secrets at the end. |
 
 Both scripts auto-detect ACR name and login-server dynamically via `az acr list` — no hardcoded ACR URL.
@@ -220,3 +238,5 @@ Both scripts auto-detect ACR name and login-server dynamically via `az acr list`
 4. **Clerk for auth** — Frontend uses `@clerk/clerk-react`. The publishable key is a public identifier (safe in CI env vars). If the key is missing, the app renders without auth — Clerk calls degrade gracefully.
 
 5. **ACR login-server ≠ resource name** — The ACR resource name is `cregledensmvp1` but the login server is `cregledensmvp1-f0b3hcbabag9d3dp.azurecr.io`. Always use the full login-server URL for `az acr login` and Docker tags. Use the resource name for `az acr build`.
+
+6. **PostgreSQL Flexible Server for users** — chosen over Cosmos DB because auth data is relational (unique email, unique provider identity, future sessions/roles) and needs constraints and transactions; B1ms is the cheapest always-on tier (~15 €/month). Public endpoint restricted to the Container App outbound IPs (the ACA environment has no VNet), TLS required.
