@@ -19,6 +19,7 @@ import PrivacidadPage from './components/PrivacidadPage.jsx';
 import TerminosPage from './components/TerminosPage.jsx';
 import CookiesPage from './components/CookiesPage.jsx';
 import CookieConsent from './components/CookieConsent.jsx';
+import RegistroPage from './components/RegistroPage.jsx';
 
 /* The full landing page */
 function LandingPage({ onOpenLead }) {
@@ -54,9 +55,10 @@ export default function App() {
 
   return (
     <>
-      {/* Header is shown on every route except /sso-callback */}
+      {/* Header is shown on every route except /sso-callback and /registro */}
       <Routes>
         <Route path="/sso-callback" element={<SsoCallback />} />
+        <Route path="/registro" element={<RegistroPage />} />
         <Route
           path="*"
           element={
