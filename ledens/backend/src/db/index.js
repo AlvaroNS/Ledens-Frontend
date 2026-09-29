@@ -8,7 +8,11 @@ const MIGRATIONS_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), '
 const MIGRATION_LOCK_ID = 461728;
 
 export const pool = process.env.DATABASE_URL
-  ? new pg.Pool({ connectionString: process.env.DATABASE_URL, max: 5 })
+  ? new pg.Pool({
+      connectionString: process.env.DATABASE_URL,
+      max: 5,
+      connectionTimeoutMillis: 5000, // fail fast instead of hanging /api/health
+    })
   : null;
 
 pool?.on('error', (err) => console.error('[db] idle client error', err));
