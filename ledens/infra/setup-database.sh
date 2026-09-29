@@ -111,8 +111,8 @@ elif [ -n "$NEW_PASSWORD" ]; then
     --admin-password "$NEW_PASSWORD" -o none
 fi
 
-if ! az postgres flexible-server db show -g "$RESOURCE_GROUP" -s "$PG_SERVER" -d "$PG_DATABASE" &>/dev/null; then
-  az postgres flexible-server db create -g "$RESOURCE_GROUP" -s "$PG_SERVER" -d "$PG_DATABASE" -o none
+if ! az postgres flexible-server db show -g "$RESOURCE_GROUP" --server-name "$PG_SERVER" --name "$PG_DATABASE" &>/dev/null; then
+  az postgres flexible-server db create -g "$RESOURCE_GROUP" --server-name "$PG_SERVER" --name "$PG_DATABASE" -o none
 fi
 
 if [ -n "$NEW_PASSWORD" ]; then
@@ -122,17 +122,17 @@ ok "Server ${PG_HOST}, database ${PG_DATABASE}"
 
 # ── ❹  Firewall: only the Container App's outbound IPs ───────────────────────
 log "Postgres firewall ← ${ACA_NAME} outbound IPs"
-for rule in $(az postgres flexible-server firewall-rule list -g "$RESOURCE_GROUP" -n "$PG_SERVER" \
+for rule in $(az postgres flexible-server firewall-rule list -g "$RESOURCE_GROUP" --server-name "$PG_SERVER" \
                 --query "[?starts_with(name, 'aca-out-')].name" -o tsv); do
-  az postgres flexible-server firewall-rule delete -g "$RESOURCE_GROUP" -n "$PG_SERVER" \
-    --rule-name "$rule" --yes -o none
+  az postgres flexible-server firewall-rule delete -g "$RESOURCE_GROUP" --server-name "$PG_SERVER" \
+    --name "$rule" --yes -o none
 done
 i=0
 for ip in $(az containerapp show -n "$ACA_NAME" -g "$RESOURCE_GROUP" \
               --query "properties.outboundIpAddresses[]" -o tsv); do
   i=$((i + 1))
-  az postgres flexible-server firewall-rule create -g "$RESOURCE_GROUP" -n "$PG_SERVER" \
-    --rule-name "aca-out-${i}" --start-ip-address "$ip" --end-ip-address "$ip" -o none
+  az postgres flexible-server firewall-rule create -g "$RESOURCE_GROUP" --server-name "$PG_SERVER" \
+    --name "aca-out-${i}" --start-ip-address "$ip" --end-ip-address "$ip" -o none
 done
 ok "${i} firewall rule(s) created"
 
