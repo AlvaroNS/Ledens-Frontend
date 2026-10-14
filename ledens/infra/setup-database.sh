@@ -175,7 +175,8 @@ done
 if [ "$DB" = "ok" ]; then
   ok "Backend connected to PostgreSQL — 'users' table created by migrations"
 else
-  warn "db is not ok yet. If it says 'disabled', the backend image predates the DB code:"
+  warn "db is not ok yet. 'migrating' = still retrying (wait and re-check /api/health)."
+  warn "'disabled' = the backend image predates the DB code:"
   warn "run the 'Deploy Backend' workflow. If 'error', check: az containerapp logs show -n ${ACA_NAME} -g ${RESOURCE_GROUP}"
 fi
 

@@ -17,12 +17,9 @@ export const pool = process.env.DATABASE_URL
 
 pool?.on('error', (err) => console.error('[db] idle client error', err));
 
-export async function migrate() {
-  if (!pool) {
-    console.warn('[db] DATABASE_URL not set — database features disabled');
-    return;
-  }
+let migrated = false;
 
+export async function migrate() {
   const client = await pool.connect();
   try {
     await client.query('SELECT pg_advisory_lock($1)', [MIGRATION_LOCK_ID]);
@@ -55,8 +52,33 @@ export async function migrate() {
   }
 }
 
+// Runs migrations in the background, retrying with backoff until they succeed,
+// so a database that is briefly unreachable at startup doesn't leave the
+// schema missing for the lifetime of the revision.
+export function startMigrations() {
+  if (!pool) {
+    console.warn('[db] DATABASE_URL not set — database features disabled');
+    return;
+  }
+
+  let delayMs = 5000;
+  const attempt = async () => {
+    try {
+      await migrate();
+      migrated = true;
+      console.log('[db] schema up to date');
+    } catch (err) {
+      console.error(`[db] migration failed, retrying in ${delayMs / 1000} s`, err);
+      setTimeout(attempt, delayMs);
+      delayMs = Math.min(delayMs * 2, 5 * 60 * 1000);
+    }
+  };
+  attempt();
+}
+
 export async function dbStatus() {
   if (!pool) return 'disabled';
+  if (!migrated) return 'migrating';
   try {
     await pool.query('SELECT 1');
     return 'ok';

@@ -2,7 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import rateLimit from 'express-rate-limit';
 import contactRouter from './routes/contact.js';
-import { migrate, dbStatus } from './db/index.js';
+import { startMigrations, dbStatus } from './db/index.js';
 
 const app = express();
 const PORT = Number(process.env.PORT || 4000);
@@ -37,7 +37,7 @@ app.use((err, _req, res, _next) => {
 });
 
 // Leads don't depend on the database, so a DB outage must not keep the API down.
-migrate().catch((err) => console.error('[db] migration failed', err));
+startMigrations();
 
 app.listen(PORT, () => {
   console.log(`Ledens backend listening on :${PORT}`);

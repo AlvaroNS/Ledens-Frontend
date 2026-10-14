@@ -92,7 +92,7 @@ Provisioned by `deploy-new-subscription.sh` + `setup-database.sh` in `rg-ledens`
 
 | Method | Path | Description |
 |---|---|---|
-| GET | `/api/health` | Health check — returns `{ status: "ok", db: "ok" \| "disabled" \| "error" }` |
+| GET | `/api/health` | Health check — returns `{ status: "ok", db: "ok" \| "migrating" \| "disabled" \| "error" }` |
 | POST | `/api/contact` | Lead capture — appends to `/data/leads.jsonl` |
 
 ### Contact endpoint payload
@@ -111,8 +111,8 @@ Provisioned by `deploy-new-subscription.sh` + `setup-database.sh` in `rg-ledens`
 | `JWT_SECRET` | `secretref:jwt-secret` | Key Vault → ACA secret |
 
 ### Database & migrations
-- `src/db/index.js` exports a `pg` pool (`pool`, `null` when `DATABASE_URL` is unset) and `migrate()`.
-- On startup the backend applies `src/db/migrations/*.sql` in filename order, once each, tracked in `schema_migrations` and guarded by an advisory lock (safe with several replicas). A DB failure is logged but never blocks `/api/contact`.
+- `src/db/index.js` exports a `pg` pool (`pool`, `null` when `DATABASE_URL` is unset), `startMigrations()` and `dbStatus()`.
+- On startup the backend applies `src/db/migrations/*.sql` in filename order, once each, tracked in `schema_migrations` and guarded by an advisory lock (safe with several replicas). If the DB is unreachable it retries in the background with backoff (5 s → 5 min); `/api/health` reports `db: "migrating"` until the schema is up to date. A DB failure is logged but never blocks `/api/contact`.
 - New schema change → add `NNN_description.sql`; never edit an applied migration.
 - `001_users.sql`: `users` (uuid id, unique `lower(email)`, nullable `password_hash`, `provider` local/google/microsoft/apple + unique `(provider, provider_id)`).
 
