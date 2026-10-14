@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { isDbConfigured } from '../db/pool.js';
 import { createSession, sessionCookieOptions, SESSION_COOKIE } from '../auth/sessions.js';
-import { findOrCreateUserFromIdentity } from '../auth/identities.js';
+import { findOrCreateUserFromIdentity, EmailInUseError } from '../auth/identities.js';
 import * as google from '../auth/providers/google.js';
 import * as microsoft from '../auth/providers/microsoft.js';
 
@@ -48,6 +48,9 @@ router.get('/google/callback', async (req, res) => {
     res.cookie(SESSION_COOKIE, token, sessionCookieOptions(req));
     res.redirect('/');
   } catch (err) {
+    if (err instanceof EmailInUseError) {
+      return res.redirect('/auth?error=google_email_in_use');
+    }
     console.error('[oauth] google callback failed', err);
     res.redirect('/auth?error=google_failed');
   }
@@ -85,6 +88,9 @@ router.get('/microsoft/callback', async (req, res) => {
     res.cookie(SESSION_COOKIE, token, sessionCookieOptions(req));
     res.redirect('/');
   } catch (err) {
+    if (err instanceof EmailInUseError) {
+      return res.redirect('/auth?error=microsoft_email_in_use');
+    }
     console.error('[oauth] microsoft callback failed', err);
     res.redirect('/auth?error=microsoft_failed');
   }

@@ -5,7 +5,7 @@ import { once } from 'node:events';
 import { createApp } from '../src/app.js';
 import { runMigrations } from '../src/db/migrate.js';
 import { getPool, closePool, isDbConfigured } from '../src/db/pool.js';
-import { findOrCreateUserFromIdentity } from '../src/auth/identities.js';
+import { findOrCreateUserFromIdentity, EmailInUseError } from '../src/auth/identities.js';
 
 // Needs a real Postgres, same as db.test.js / auth.test.js.
 const skip = !isDbConfigured() && 'DATABASE_URL not set — start the local db to run these';
@@ -197,6 +197,52 @@ test('a second verified provider on the same email links to an already-verified 
     });
 
     assert.equal(user.id, firstId, 'a second verified provider must join the already-verified account, not duplicate it');
+  } finally {
+    await cleanupByEmail(email);
+  }
+});
+
+test('an unverified email on an existing account is refused cleanly, not a crash', { skip }, async () => {
+  // Code-review-caught bug: when emailVerified is false (a real possibility
+  // for Microsoft, per providers/microsoft.js's own comment) AND the email
+  // already belongs to someone, the old code skipped straight to INSERT,
+  // which collided with the unique index and surfaced as an opaque
+  // "login failed" instead of a clear, catchable error.
+  const email = `g5-${Date.now()}@example.com`;
+  try {
+    await fetch(`${appBase}/api/auth/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: 'Existing User', email, password: 'password123' }),
+    });
+
+    await assert.rejects(
+      findOrCreateUserFromIdentity({
+        provider: 'microsoft',
+        providerUserId: `ms-${Date.now()}`,
+        email,
+        emailVerified: false,
+        name: 'Someone',
+      }),
+      EmailInUseError,
+    );
+  } finally {
+    await cleanupByEmail(email);
+  }
+});
+
+test('two logins for the same brand-new email racing each other both succeed, same account', { skip }, async () => {
+  // Code-review-caught bug: a check-then-act race (look up by email, then
+  // insert) meant the loser of two simultaneous first-time logins for the
+  // same email got an unhandled unique-violation instead of being linked.
+  const email = `g6-${Date.now()}@example.com`;
+  try {
+    const identity = (sub) => ({ provider: 'google', providerUserId: sub, email, emailVerified: true, name: 'Race User' });
+    const [a, b] = await Promise.all([
+      findOrCreateUserFromIdentity(identity(`race-a-${Date.now()}`)),
+      findOrCreateUserFromIdentity(identity(`race-b-${Date.now()}`)),
+    ]);
+    assert.equal(a.id, b.id, 'both concurrent first-time logins must resolve to the same account');
   } finally {
     await cleanupByEmail(email);
   }

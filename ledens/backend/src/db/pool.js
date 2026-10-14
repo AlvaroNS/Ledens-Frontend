@@ -16,6 +16,11 @@ export function getPool() {
       // Azure Database for PostgreSQL requires TLS.
       ssl: process.env.DATABASE_SSL === 'true' ? true : undefined,
       max: 5,
+      // pg's default is 0 (wait forever). Without this, an unreachable DB at
+      // startup hangs runMigrations() indefinitely, so index.js never reaches
+      // app.listen() — breaking the "a DB outage must never take down the
+      // lead form" guarantee the rest of this file's comments promise.
+      connectionTimeoutMillis: 5000,
     });
     pool.on('error', (err) => console.error('[db] idle client error', err));
   }

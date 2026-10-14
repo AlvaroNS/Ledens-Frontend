@@ -34,8 +34,10 @@ function isValidEmail(v) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim()); }
 const OAUTH_ERRORS = {
   google_cancelled: 'Has cancelado el inicio de sesión con Google.',
   google_failed: 'No se pudo iniciar sesión con Google. Inténtalo de nuevo.',
+  google_email_in_use: 'Ese email ya tiene una cuenta con otro método de acceso. Inicia sesión con tu contraseña, o con el método que usaste la primera vez.',
   microsoft_cancelled: 'Has cancelado el inicio de sesión con Microsoft.',
   microsoft_failed: 'No se pudo iniciar sesión con Microsoft. Inténtalo de nuevo.',
+  microsoft_email_in_use: 'Ese email ya tiene una cuenta con otro método de acceso. Inicia sesión con tu contraseña, o con el método que usaste la primera vez.',
 };
 
 export default function AuthPage() {

@@ -1,5 +1,16 @@
 import { getPool } from '../db/pool.js';
 
+// Thrown when a provider's login doesn't vouch for an email, and that email
+// is already taken by someone else — see the comment above the "neither
+// verified" branch below for why this has to be a hard refusal.
+export class EmailInUseError extends Error {
+  constructor(email) {
+    super(`${email} is already registered`);
+    this.name = 'EmailInUseError';
+    this.email = email;
+  }
+}
+
 /**
  * Finds the user behind a verified social login, creating one — or linking
  * the identity to an existing *already-verified* account with the same
@@ -18,8 +29,11 @@ import { getPool } from '../db/pool.js';
  * already-verified account (proven by an earlier social login) is instead
  * a safe, ordinary link — that's the case auth_identities (#9) was built
  * for in the first place.
+ *
+ * `_retried` is internal — see the bottom of the function.
  */
-export async function findOrCreateUserFromIdentity({ provider, providerUserId, email, emailVerified, name }) {
+export async function findOrCreateUserFromIdentity(identity, _retried = false) {
+  const { provider, providerUserId, email, emailVerified, name } = identity;
   const client = await getPool().connect();
   try {
     await client.query('BEGIN');
@@ -35,27 +49,34 @@ export async function findOrCreateUserFromIdentity({ provider, providerUserId, e
       return existing.rows[0];
     }
 
-    let user;
-    if (emailVerified) {
-      const byEmail = await client.query(
-        'SELECT id, email, name, created_at, email_verified FROM users WHERE lower(email) = lower($1)',
-        [email],
-      );
-      const found = byEmail.rows[0];
-      if (found?.email_verified) {
-        user = found;
-      } else if (found) {
-        const reclaimed = await client.query(
-          `UPDATE users SET email_verified = true, password_hash = NULL, updated_at = now()
-            WHERE id = $1 RETURNING id, email, name, created_at`,
-          [found.id],
-        );
-        await client.query('DELETE FROM sessions WHERE user_id = $1', [found.id]);
-        user = reclaimed.rows[0];
-      }
-    }
+    // Checked regardless of emailVerified — we need to know either way,
+    // whether to link, to reclaim, or to refuse outright.
+    const byEmail = await client.query(
+      'SELECT id, email, name, created_at, email_verified FROM users WHERE lower(email) = lower($1)',
+      [email],
+    );
+    const found = byEmail.rows[0];
 
-    if (!user) {
+    let user;
+    if (found && !emailVerified) {
+      // Someone already owns this email, and THIS login isn't vouching for
+      // it either (e.g. Microsoft's userinfo omitting email_verified — a
+      // real possibility, see providers/microsoft.js). Falling through to
+      // the insert below would just collide with the unique index anyway;
+      // worse, silently linking or reclaiming here would let an unverified
+      // claim take over an account. Refuse clearly instead.
+      throw new EmailInUseError(email);
+    } else if (found && found.email_verified) {
+      user = found;
+    } else if (found) {
+      const reclaimed = await client.query(
+        `UPDATE users SET email_verified = true, password_hash = NULL, updated_at = now()
+          WHERE id = $1 RETURNING id, email, name, created_at`,
+        [found.id],
+      );
+      await client.query('DELETE FROM sessions WHERE user_id = $1', [found.id]);
+      user = reclaimed.rows[0];
+    } else {
       const created = await client.query(
         'INSERT INTO users (email, name, password_hash, email_verified) VALUES ($1, $2, NULL, $3) RETURNING id, email, name, created_at',
         [email, name, emailVerified],
@@ -71,9 +92,16 @@ export async function findOrCreateUserFromIdentity({ provider, providerUserId, e
     await client.query('COMMIT');
     return user;
   } catch (err) {
-    await client.query('ROLLBACK');
-    throw err;
+    await client.query('ROLLBACK').catch(() => {});
+    // Two logins for the same brand-new email landing within milliseconds
+    // of each other (e.g. two tabs) both pass the "not found" check above
+    // before either commits; the loser's insert hits the unique index.
+    // Not a real error — the winner's row is now visible, so retrying once
+    // finds it and links to it normally instead of failing the user's login.
+    if (err.code !== '23505' || _retried) throw err;
+    // else: fall through to finally, then retry below.
   } finally {
     client.release();
   }
+  return findOrCreateUserFromIdentity(identity, true);
 }

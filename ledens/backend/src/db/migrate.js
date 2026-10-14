@@ -19,6 +19,7 @@ const LOCK_ID = 727001;
 export async function runMigrations() {
   const files = (await fs.readdir(MIGRATIONS_DIR)).filter((f) => f.endsWith('.sql')).sort();
   const client = await getPool().connect();
+  let failure;
   try {
     await client.query('SELECT pg_advisory_lock($1)', [LOCK_ID]);
     await client.query(`
@@ -40,12 +41,19 @@ export async function runMigrations() {
         console.log(`[db] applied migration ${file}`);
       } catch (err) {
         await client.query('ROLLBACK');
-        throw new Error(`Migration ${file} failed: ${err.message}`);
+        failure = new Error(`Migration ${file} failed: ${err.message}`);
+        throw failure;
       }
     }
+  } catch (err) {
+    failure = failure || err;
+    throw err;
   } finally {
     await client.query('SELECT pg_advisory_unlock($1)', [LOCK_ID]).catch(() => {});
-    client.release();
+    // Pass any failure to release() so node-postgres discards a connection
+    // that may be in a bad state, instead of handing it back to the pool for
+    // an unrelated later query to inherit.
+    client.release(failure);
   }
 }
 

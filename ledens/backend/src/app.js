@@ -18,8 +18,11 @@ export function createApp() {
   app.use(cookieParser());
   // credentials: true lets the session cookie travel on cross-origin calls
   // (e.g. hitting the Container App FQDN directly in dev). Same-origin calls
-  // through the SWA/nginx proxy work regardless.
-  app.use(cors({ origin: ORIGIN, credentials: true }));
+  // through the SWA/nginx proxy work regardless. Browsers flatly reject
+  // Access-Control-Allow-Origin: * paired with credentials: true for any
+  // cookie-bearing request, so only turn credentials on once an actual
+  // origin is configured — never silently combine it with the wildcard.
+  app.use(cors({ origin: ORIGIN, credentials: ORIGIN !== '*' }));
 
   const apiLimiter = rateLimit({
     windowMs: 60 * 1000,
@@ -34,12 +37,16 @@ export function createApp() {
   });
 
   app.use('/api/contact', contactRouter);
-  app.use('/api/auth', authRouter);
-  // Mounted at the same prefix as authRouter (Express allows this) — kept in
-  // its own file because it's social login, not email/password, and #12/#13
-  // will add their own provider files alongside google.js without this one
-  // growing indefinitely.
+  // oauthRouter mounted FIRST: authRouter's "DB not configured" guard is a
+  // path-less router.use(), so once it sends a 503 nothing downstream ever
+  // runs — mounting it first would silently swallow /api/auth/google and
+  // /api/auth/microsoft behind its generic message, before oauth.js's own
+  // per-provider isGoogleConfigured()/isMicrosoftConfigured() checks (and
+  // their more specific error text) ever got a chance to run. Requests that
+  // don't match any oauthRouter route (/register, /login, /logout, /me)
+  // fall through to authRouter normally.
   app.use('/api/auth', oauthRouter);
+  app.use('/api/auth', authRouter);
 
   app.use((err, _req, res, _next) => {
     console.error('[error]', err);
