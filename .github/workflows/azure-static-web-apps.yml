@@ -11,10 +11,11 @@ on:
     branches: [main]
     paths:
       - 'ledens/frontend/**'
+  workflow_dispatch:       # allow manual production deploy from GitHub UI
 
 jobs:
   build_and_deploy:
-    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' || (github.event_name == 'pull_request' && github.event.action != 'closed')
     runs-on: ubuntu-latest
     name: Build and Deploy
     steps:

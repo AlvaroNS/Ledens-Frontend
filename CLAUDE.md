@@ -19,8 +19,9 @@ ledens/
   frontend/          React 18 + Vite SPA (deployed to SWA)
   backend/           Express 4 API server (deployed to ACA via Docker)
   infra/
-    setup.sh         Full provisioning script (run once per new subscription)
-    setup2.sh        Targeted recovery script (fix partially-provisioned env)
+    deploy-new-subscription.sh  Full provisioning script (run once per new subscription) — current
+    setup-database.sh           Adds PostgreSQL + Key Vault to an existing deployment — current
+    setup.sh, setup2.sh         Historical — targeted the old, now-abandoned subscription
   docker-compose.yml Local full-stack dev with Docker
   .env.example       Root-level env var reference
 .github/
@@ -36,19 +37,23 @@ ledens/
 ```
 Browser
   │
-  └─► Azure Static Web Apps (webapp-ledens-landing-1)
-        • Hostname: wonderful-mushroom-01c0aee03.7.azurestaticapps.net
+  └─► Azure Static Web Apps (swa-ledens)
+        • Hostname: ambitious-island-05d1d8a03.2.azurestaticapps.net
         • Serves the Vite build (ledens/frontend/dist)
         • /api/* requests → proxied automatically to Container App
         │                   (SWA Linked Backend — no CORS headers needed in frontend)
         │
         └─► Azure Container App (ledens-backend)
-              • FQDN: ledens-backend.agreeablebeach-f99c1b78.westeurope.azurecontainerapps.io
+              • FQDN: ledens-backend.gentlebay-cc058f77.westeurope.azurecontainerapps.io
+              •        (direct calls now rejected with 401 — only reachable via the SWA hostname)
               • Express server on port 4000
               • Image pulled from ACR via user-assigned managed identity (no passwords)
               │
-              └─► Azure Files share (ledens-data) mounted at /data
-                    • Persists leads.jsonl across container restarts / revisions
+              ├─► Azure Files share (ledens-data) mounted at /data
+              │     • Persists leads.jsonl across container restarts / revisions
+              │
+              └─► PostgreSQL Flexible Server (psql-ledens-ee069061) + Key Vault (kv-ledens-ee069061)
+                    • Users, sessions, login identities — see "Database" under Backend
 ```
 
 > The `/api/*` proxy is configured at the Azure level via `az staticwebapp backends link`.
@@ -58,19 +63,23 @@ Browser
 
 ## Azure Resources
 
+**Subscription:** `Ledens-subscription-1` (`ee069061-db06-4a57-8ce7-c752a2985d27`), resource group `rg-ledens`, `westeurope`, tagged `proyecto=ledens`. `<sfx>` below = first 8 hex chars of the subscription id (`ee069061`) — used for globally-unique names.
+
+> **History:** everything originally lived in a different subscription (`550f2d00…`, "MCAPS-Support-alvaron", resource group `rg-ledens-mvp`), which couldn't be migrated across Azure AD tenants. The whole stack was rebuilt from scratch here on 4 Oct 2026 via `deploy-new-subscription.sh`; the database and Key Vault were added on 14 Oct via `setup-database.sh`. Almost every resource name changed along with it — if you see `rg-ledens-mvp`, `cregledensmvp1`, or a `*.azurecontainerapps.io`/`*.azurestaticapps.net` hostname that doesn't match the table below, it's a leftover reference to the old subscription.
+
 | Resource | Name | Notes |
 |---|---|---|
-| Resource Group | `rg-ledens-mvp` | Region: westeurope |
-| Static Web App | `webapp-ledens-landing-1` | Frontend host + `/api/*` proxy |
-| Container App | `ledens-backend` | Express API, min 1 replica |
+| Resource Group | `rg-ledens` | Region: westeurope |
+| Static Web App | `swa-ledens` | Frontend host + `/api/*` proxy. Hostname: `ambitious-island-05d1d8a03.2.azurestaticapps.net` |
+| Container App | `ledens-backend` | Express API. FQDN: `ledens-backend.gentlebay-cc058f77.westeurope.azurecontainerapps.io` (direct calls rejected with 401 — only reachable via the SWA hostname) |
 | Container Apps Env | `ledens-env` | Linked to Log Analytics workspace |
-| Container Registry | `cregledensmvp1` | Login server: `cregledensmvp1-f0b3hcbabag9d3dp.azurecr.io` |
-| Managed Identity | `id-ledens-api-acr-pull` | Has AcrPull on the registry; attached to Container App |
-| Storage Account | `stledensmvp1` | Azure Files share `ledens-data` → mounted at `/data` |
-| Log Analytics | `workspace-rgledensmvpxLsR` | Linked to `ledens-env` |
-| Key Vault | `kv-ledens-mvp-1` | Available for secrets (not yet actively used) |
-| PostgreSQL Flexible Server | **planned — not provisioned yet** | PostgreSQL 16, Burstable `Standard_B1ms`, `westeurope`. Users/auth data (issue #9). Local dev DB already exists in `docker-compose.yml`. |
-| Subscription ID | `550f2d00-7d8d-4699-8b84-6eccff979f88` | MCAPS-Support-alvaron |
+| Container Registry | `crledens<sfx>` | i.e. `crledensee069061`. Login server: `crledensee069061.azurecr.io` |
+| Managed Identity | `id-ledens-acr-pull` | AcrPull on the registry; attached to Container App |
+| Managed Identity | `id-ledens-backend` | Key Vault Secrets User; attached to Container App for `DATABASE_URL`/`JWT_SECRET` secret references |
+| Storage Account | `stledens<sfx>` | i.e. `stledensee069061`. Azure Files share `ledens-data` → mounted at `/data` |
+| Log Analytics | `log-ledens` | 30-day retention, 0.5 GB/day cap. Linked to `ledens-env` |
+| Key Vault | `kv-ledens<sfx>` | i.e. `kv-ledens-ee069061`. RBAC mode. Secrets: `database-url`, `jwt-secret`, OAuth placeholders (`google-*`/`microsoft-*`/`apple-*` — still `CHANGE_ME`, no app registered with any provider yet) |
+| PostgreSQL Flexible Server | `psql-ledens<sfx>` | i.e. `psql-ledens-ee069061`. PG 16, Burstable B1ms, 32 GB, db `ledens`, ~15 €/month. Firewall: `allow-azure-services` (`0.0.0.0` — Azure-origin traffic only; password + TLS still required) |
 
 ---
 
@@ -78,13 +87,13 @@ Browser
 
 **Stack:** Node 20, Express 4, ESM modules
 **Port:** 4000 (set via `PORT` env var)
-**Image:** `cregledensmvp1-f0b3hcbabag9d3dp.azurecr.io/ledens-backend:latest`
+**Image:** `crledensee069061.azurecr.io/ledens-backend:latest`
 
 ### API Routes
 
 | Method | Path | Description |
 |---|---|---|
-| GET | `/api/health` | Health check — returns `{ status: "ok" }` |
+| GET | `/api/health` | Health check — returns `{ status: "ok", db: "ok" \| "migrating" \| "disabled" \| "error" }` |
 | POST | `/api/contact` | Lead capture — appends to `/data/leads.jsonl` |
 | POST | `/api/auth/register` | Create an account (name, email, password). Logs in and sets the session cookie. |
 | POST | `/api/auth/login` | Email + password login. Sets the session cookie. Rate-limited (10 / 15 min per IP). |
@@ -107,20 +116,20 @@ All `/api/auth/*` routes return `503` if `DATABASE_URL` isn't set (production, u
 |---|---|---|
 | `NODE_ENV` | `production` | Set in ACA |
 | `PORT` | `4000` | Set in ACA |
-| `CORS_ORIGIN` | `https://wonderful-mushroom-01c0aee03.7.azurestaticapps.net` | Set in ACA (SWA hostname) |
+| `CORS_ORIGIN` | `https://ambitious-island-05d1d8a03.2.azurestaticapps.net` | Set in ACA (SWA hostname) |
 | `DATA_DIR` | `/data` | Set in ACA |
-| `DATABASE_URL` | PostgreSQL connection string | **Not set in production yet.** Will come from Key Vault once the DB is provisioned. Unset ⇒ database features are off and the API behaves as before. |
-| `DATABASE_SSL` | `true` | Set in ACA together with `DATABASE_URL` (Azure PostgreSQL requires TLS) |
-| `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | from Google Cloud Console | **Not set yet** — no app registered. Google login returns 503 until this exists. |
-| `GOOGLE_REDIRECT_URI` | e.g. `https://ledens.es/api/auth/google/callback` | Must exactly match a redirect URI registered in the Google Cloud Console. |
-| `MICROSOFT_CLIENT_ID` / `MICROSOFT_CLIENT_SECRET` | from an Entra app registration | **Not set yet** — no app registered. Microsoft login returns 503 until this exists. |
-| `MICROSOFT_REDIRECT_URI` | e.g. `https://ledens.es/api/auth/microsoft/callback` | Must exactly match a redirect URI registered in the Entra app. |
+| `DATABASE_URL` | PostgreSQL connection string, `sslmode=require` | `secretref:database-url` — Key Vault → ACA secret, provisioned by `infra/setup-database.sh`. Unset ⇒ database features are off and the API behaves as before (never blocks `/api/contact`). |
+| `DATABASE_SSL` | `true` | Set alongside `DATABASE_URL` in ACA. Belt-and-braces: the connection string's own `sslmode=require` likely already forces TLS, but this makes it explicit regardless of how the string was built. |
+| `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | from Google Cloud Console | **Still placeholder `CHANGE_ME` in Key Vault** — no app registered yet (who should own it is an open question). Google login returns 503 until this exists. |
+| `GOOGLE_REDIRECT_URI` | e.g. `https://ambitious-island-05d1d8a03.2.azurestaticapps.net/api/auth/google/callback` | Must exactly match a redirect URI registered in the Google Cloud Console. |
+| `MICROSOFT_CLIENT_ID` / `MICROSOFT_CLIENT_SECRET` | from an Entra app registration | **Still placeholder `CHANGE_ME`** — same open question as Google. |
+| `MICROSOFT_REDIRECT_URI` | e.g. `https://ambitious-island-05d1d8a03.2.azurestaticapps.net/api/auth/microsoft/callback` | Must exactly match a redirect URI registered in the Entra app. |
 
 ### Database (PostgreSQL)
 
 **Decision:** PostgreSQL over Cosmos DB — the data is relational/tabular (users with unique emails, and later the budget agent's catalogue and past budgets), and Postgres gives unique constraints and transactions that `leads.jsonl` cannot.
 
-**Status:** code and local dev are done; the Azure server is **not provisioned yet**. Leads still go to `leads.jsonl` (the lead flow is deliberately separate from users).
+**Status:** provisioned and live — `psql-ledens-ee069061` (Burstable B1ms, PostgreSQL 16, `westeurope`), created by `infra/setup-database.sh`. Firewall admits Azure-origin traffic only (`0.0.0.0` rule — the ACA consumption environment has ~320 possible outbound IPs, making per-IP rules impractical); the Key Vault-only password and TLS are what actually gate access. Hardening path, not yet done: VNet-integrated ACA environment + private endpoint. Leads still go to `leads.jsonl` (that flow is deliberately separate from users).
 
 - Driver: `pg`. Connection pool in `src/db/pool.js`, only created when `DATABASE_URL` is set.
 - Migrations: numbered `.sql` files in `src/db/migrations/`, applied in order at backend startup (guarded by a Postgres advisory lock so several replicas don't race) and via `npm run migrate`. Applied files are recorded in `schema_migrations`. **Never edit a shipped migration — add a new numbered file.** If migrations fail at startup the error is logged and the API keeps serving (so the lead form never goes down because of the DB).
@@ -149,6 +158,10 @@ Sessions, not JWT: a `sessions` row per login (`002_sessions.sql`), the cookie o
   - **Security fix (found and closed while building #12, before Microsoft could inherit it):** the first version linked a new *verified* social login to any existing account with a matching email. Since #10's password registration never proves anyone owns the email they typed in, an attacker could pre-register someone else's email with a password; the real owner's first Google/Microsoft login would then have silently handed their account to that attacker's password. Fixed via `users.email_verified` (`003_users_email_verified.sql`): only an account that has *itself* reached `email_verified = true` (via a prior social login) is a safe link target. A verified login landing on an unverified account instead **reclaims** it — marks it verified, clears the unproven password, and deletes any session already open under it — rather than creating a second account, since `users.email` is unique and a duplicate isn't possible anyway. See `test/oauth-google.test.js`'s reclaim test for the exact scenario this closes.
 - `src/routes/oauth.js` — both providers' routes, mounted at `/api/auth` alongside `routes/auth.js` (Express allows two routers at the same prefix). CSRF protection via a one-time `oauth_state` cookie (shared across providers — only one OAuth attempt is ever in flight per browser), checked on the callback before anything else runs.
 - Session creation reuses `createSession`/`sessionCookieOptions` from `src/auth/sessions.js` — any login method ends in exactly the same kind of session.
+
+> **`JWT_SECRET`** is also present in Key Vault and wired into ACA (`secretref:jwt-secret`), left over from an earlier, independent attempt at this same feature set (see the 14 Oct decision log entry below). **This codebase doesn't use JWTs anywhere** — sessions are DB-backed (above). Harmless to leave wired, but don't be misled by its presence into thinking there's a JWT flow here.
+>
+> Also worth adopting later: that earlier attempt's `/api/health` reported `db: "ok"/"migrating"/"error"/"disabled"` — a nice, credential-free way to confirm a deploy actually reached the database. Not implemented here yet.
 
 ### Adding a new backend route
 1. Create `ledens/backend/src/routes/myroute.js` (export a Router)
@@ -211,17 +224,17 @@ Clerk is gone — `/auth` and `Header` now talk directly to the backend's `/api/
 - **Triggers:** push to `main` touching `ledens/backend/**` or the workflow file; `workflow_dispatch`
 - **Steps:**
   1. Azure login (service principal)
-  2. `az acr login --name cregledensmvp1-f0b3hcbabag9d3dp.azurecr.io` (full URL bypasses name validator)
+  2. Resolve the ACR name/login-server dynamically from `rg-ledens` (`az acr list`), then `az acr login`
   3. `docker build` + push with `${{ github.sha }}` tag and `latest` tag
   4. `az containerapp update --image <sha-tagged-image>` → new ACA revision
-  5. Health-check loop (10 attempts, 6 s apart) against `/api/health`
+  5. Health-check loop (10 attempts, 6 s apart) against `/api/health` — **through the SWA hostname**, not the Container App's own FQDN directly (that now rejects direct calls with 401, since it's a linked backend)
 - **Secret required:** `AZURE_CREDENTIALS` (service principal JSON from `az ad sp create-for-rbac --sdk-auth`)
 
 ### Required GitHub Secrets
 | Secret | Used by | How to obtain |
 |---|---|---|
-| `AZURE_STATIC_WEB_APPS_API_TOKEN` | SWA workflow | Azure Portal → Static Web Apps → webapp-ledens-landing-1 → Manage deployment token |
-| `AZURE_CREDENTIALS` | Backend workflow | Run `az ad sp create-for-rbac --name sp-ledens-github --role Contributor --scopes /subscriptions/550f2d00-7d8d-4699-8b84-6eccff979f88/resourceGroups/rg-ledens-mvp --sdk-auth` |
+| `AZURE_STATIC_WEB_APPS_API_TOKEN` | SWA workflow | Azure Portal → Static Web Apps → `swa-ledens` → Manage deployment token |
+| `AZURE_CREDENTIALS` | Backend workflow | Run `az ad sp create-for-rbac --name sp-ledens-github --role Contributor --scopes /subscriptions/ee069061-db06-4a57-8ce7-c752a2985d27/resourceGroups/rg-ledens --sdk-auth` |
 
 ---
 
@@ -260,10 +273,12 @@ DATABASE_URL=postgres://ledens:ledens_dev_password@localhost:5432/ledens npm tes
 
 | Script | When to use |
 |---|---|
-| `ledens/infra/setup.sh` | First-time provisioning of a new subscription. Builds the image, creates all Azure resources. |
-| `ledens/infra/setup2.sh` | Recovery: re-creates `ledens-env` linked to the correct Log Analytics workspace without rebuilding the image. |
+| `ledens/infra/setup.sh` | **Historical** — targeted the old `rg-ledens-mvp` / `550f2d00…` subscription, which couldn't migrate across tenants (see "New subscription" above). Not usable against the current environment. |
+| `ledens/infra/setup2.sh` | **Historical**, same reason as `setup.sh`. |
+| `ledens/infra/deploy-new-subscription.sh` | **Current.** Provisions the full stack from scratch in an empty subscription (`rg-ledens`, tagged `proyecto=ledens`) with cost guardrails: Log Analytics 0.5 GB/day cap, ACR Basic, 1–2 replicas, RG budget. Prints the two GitHub secrets at the end. This built what's running today. |
+| `ledens/infra/setup-database.sh` | **Current.** Adds PostgreSQL + Key Vault + the `id-ledens-backend` identity to `rg-ledens`, wires `DATABASE_URL`/`JWT_SECRET` into the Container App as secret references. Idempotent — safe to re-run. |
 
-Both scripts auto-detect ACR name and login-server dynamically via `az acr list` — no hardcoded ACR URL.
+`deploy-new-subscription.sh` and `setup-database.sh` both auto-detect names dynamically (ACR login-server via `az acr list`, a deterministic suffix from the subscription id for globally-unique names) — no hardcoded values to go stale if the subscription changes again.
 
 ---
 
@@ -277,6 +292,6 @@ Both scripts auto-detect ACR name and login-server dynamically via `az acr list`
 
 4. **Clerk removed (issue #14)** — Auth is now entirely our own: backend sessions (see "Authentication") plus a thin frontend (`AuthContext`, `AuthPage`). No publishable key, no `@clerk/clerk-react`, no `/sso-callback` client-side step. Replaced because the project needed its own user database regardless (issues #8–#13), at which point a third-party identity SDK stopped pulling its weight.
 
-5. **ACR login-server ≠ resource name** — The ACR resource name is `cregledensmvp1` but the login server is `cregledensmvp1-f0b3hcbabag9d3dp.azurecr.io`. Always use the full login-server URL for `az acr login` and Docker tags. Use the resource name for `az acr build`.
+5. **ACR login-server ≠ resource name** — The ACR resource name is `crledensee069061` but the login server is `crledensee069061.azurecr.io`. Always use the full login-server URL for `az acr login` and Docker tags. Use the resource name for `az acr build`. (`deploy-backend.yml` now resolves this dynamically rather than hardcoding either — see CI/CD.)
 
-6. **Real database for users, not for leads (yet)** — User accounts live in PostgreSQL (see "Database"). Secrets such as `DATABASE_URL` must come from Key Vault / Container App secrets, never the repo or `VITE_*` variables.
+6. **Real database for users, not for leads (yet)** — User accounts live in PostgreSQL, ~15 €/month on the cheapest always-on tier (B1ms). See "Database" for the schema/firewall/cost reasoning in full. Secrets such as `DATABASE_URL` must come from Key Vault / Container App secrets, never the repo or `VITE_*` variables.
