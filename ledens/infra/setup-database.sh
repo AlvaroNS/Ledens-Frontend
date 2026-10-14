@@ -2,9 +2,7 @@
 # ══════════════════════════════════════════════════════════════════════════════
 # ledens/infra/setup-database.sh
 # Adds the user database and secret store to an existing Ledens deployment
-# (run deploy-new-subscription.sh first). Idempotent: safe to re-run — and
-# re-running refreshes the Postgres firewall if the Container App's outbound
-# IPs ever change.
+# (run deploy-new-subscription.sh first). Idempotent: safe to re-run.
 #
 #   • Azure Database for PostgreSQL Flexible Server (Burstable B1ms, PG 16)
 #   • Key Vault (RBAC) holding database-url, jwt-secret and OAuth placeholders
@@ -120,40 +118,23 @@ if [ -n "$NEW_PASSWORD" ]; then
 fi
 ok "Server ${PG_HOST}, database ${PG_DATABASE}"
 
-# ── ❹  Firewall: only the Container App's outbound IPs ───────────────────────
-log "Postgres firewall ← ${ACA_NAME} outbound IPs"
-# Public endpoint with no rules = deny all; the rules below open it only to the
-# Container App. (Some CLI versions ignore --public-access on create.)
+# ── ❹  Firewall: allow traffic from Azure services only ──────────────────────
+# The Container Apps consumption environment has hundreds of possible outbound
+# IPs (321 here), so per-IP rules are impractical. The 0.0.0.0 rule admits
+# connections only from Azure datacenter IPs; access still requires the
+# Key Vault-only admin password and TLS. Next step up: VNet + private endpoint.
+log "Postgres firewall ← Azure services"
 if [ "$(az postgres flexible-server show -g "$RESOURCE_GROUP" -n "$PG_SERVER" \
         --query network.publicNetworkAccess -o tsv)" != "Enabled" ]; then
   az postgres flexible-server update -g "$RESOURCE_GROUP" -n "$PG_SERVER" \
     --public-access Enabled -o none
 fi
-# Sync instead of delete-all + recreate: each rule change is a ~30-60 s
-# serialized operation, so re-runs only touch IPs that actually changed.
-OUTBOUND_IPS=$(az containerapp show -n "$ACA_NAME" -g "$RESOURCE_GROUP" \
-                --query "properties.outboundIpAddresses[]" -o tsv | sort -u)
-EXISTING=$(az postgres flexible-server firewall-rule list -g "$RESOURCE_GROUP" --server-name "$PG_SERVER" \
-             --query "[?starts_with(name, 'aca-')].[name, startIpAddress]" -o tsv)
-
-STALE=$(echo "$EXISTING" | awk -v want="$(echo $OUTBOUND_IPS)" \
-          'BEGIN { n = split(want, w, " "); for (i = 1; i <= n; i++) keep[w[i]] = 1 }
-           NF == 2 && !($2 in keep) { print $1 }')
-MISSING=$(comm -23 <(echo "$OUTBOUND_IPS") <(echo "$EXISTING" | awk 'NF == 2 { print $2 }' | sort -u))
-
-echo "$(echo $OUTBOUND_IPS | wc -w) outbound IP(s): $(echo $STALE | wc -w) rule(s) to remove," \
-     "$(echo $MISSING | wc -w) to add — each takes ~30-60 s"
-for rule in $STALE; do
-  echo "  - ${rule}"
-  az postgres flexible-server firewall-rule delete -g "$RESOURCE_GROUP" --server-name "$PG_SERVER" \
-    --name "$rule" --yes -o none
-done
-for ip in $MISSING; do
-  echo "  + ${ip}"
+if [ -z "$(az postgres flexible-server firewall-rule list -g "$RESOURCE_GROUP" --server-name "$PG_SERVER" \
+             --query "[?startIpAddress=='0.0.0.0' && endIpAddress=='0.0.0.0'].name" -o tsv)" ]; then
   az postgres flexible-server firewall-rule create -g "$RESOURCE_GROUP" --server-name "$PG_SERVER" \
-    --name "aca-${ip//./-}" --start-ip-address "$ip" --end-ip-address "$ip" -o none
-done
-ok "Firewall in sync with ${ACA_NAME} outbound IPs"
+    --name allow-azure-services --start-ip-address 0.0.0.0 --end-ip-address 0.0.0.0 -o none
+fi
+ok "Firewall allows Azure services (password + TLS still required)"
 
 # ── ❺  Application secrets ───────────────────────────────────────────────────
 log "Secrets in Key Vault"
