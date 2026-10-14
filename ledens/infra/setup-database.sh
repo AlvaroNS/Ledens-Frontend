@@ -129,23 +129,31 @@ if [ "$(az postgres flexible-server show -g "$RESOURCE_GROUP" -n "$PG_SERVER" \
   az postgres flexible-server update -g "$RESOURCE_GROUP" -n "$PG_SERVER" \
     --public-access Enabled -o none
 fi
-for rule in $(az postgres flexible-server firewall-rule list -g "$RESOURCE_GROUP" --server-name "$PG_SERVER" \
-                --query "[?starts_with(name, 'aca-out-')].name" -o tsv); do
+# Sync instead of delete-all + recreate: each rule change is a ~30-60 s
+# serialized operation, so re-runs only touch IPs that actually changed.
+OUTBOUND_IPS=$(az containerapp show -n "$ACA_NAME" -g "$RESOURCE_GROUP" \
+                --query "properties.outboundIpAddresses[]" -o tsv | sort -u)
+EXISTING=$(az postgres flexible-server firewall-rule list -g "$RESOURCE_GROUP" --server-name "$PG_SERVER" \
+             --query "[?starts_with(name, 'aca-')].[name, startIpAddress]" -o tsv)
+
+STALE=$(echo "$EXISTING" | awk -v want="$(echo $OUTBOUND_IPS)" \
+          'BEGIN { n = split(want, w, " "); for (i = 1; i <= n; i++) keep[w[i]] = 1 }
+           NF == 2 && !($2 in keep) { print $1 }')
+MISSING=$(comm -23 <(echo "$OUTBOUND_IPS") <(echo "$EXISTING" | awk 'NF == 2 { print $2 }' | sort -u))
+
+echo "$(echo $OUTBOUND_IPS | wc -w) outbound IP(s): $(echo $STALE | wc -w) rule(s) to remove," \
+     "$(echo $MISSING | wc -w) to add — each takes ~30-60 s"
+for rule in $STALE; do
+  echo "  - ${rule}"
   az postgres flexible-server firewall-rule delete -g "$RESOURCE_GROUP" --server-name "$PG_SERVER" \
     --name "$rule" --yes -o none
 done
-OUTBOUND_IPS=$(az containerapp show -n "$ACA_NAME" -g "$RESOURCE_GROUP" \
-                --query "properties.outboundIpAddresses[]" -o tsv)
-TOTAL=$(echo "$OUTBOUND_IPS" | wc -w)
-echo "Adding ${TOTAL} rule(s) — each takes ~30-60 s, Postgres applies them one at a time"
-i=0
-for ip in $OUTBOUND_IPS; do
-  i=$((i + 1))
-  echo "  [${i}/${TOTAL}] ${ip}"
+for ip in $MISSING; do
+  echo "  + ${ip}"
   az postgres flexible-server firewall-rule create -g "$RESOURCE_GROUP" --server-name "$PG_SERVER" \
-    --name "aca-out-${i}" --start-ip-address "$ip" --end-ip-address "$ip" -o none
+    --name "aca-${ip//./-}" --start-ip-address "$ip" --end-ip-address "$ip" -o none
 done
-ok "${i} firewall rule(s) created"
+ok "Firewall in sync with ${ACA_NAME} outbound IPs"
 
 # ── ❺  Application secrets ───────────────────────────────────────────────────
 log "Secrets in Key Vault"
