@@ -1,23 +1,4 @@
 services:
-  backend:
-    build: ./backend
-    container_name: ledens-backend
-    restart: unless-stopped
-    environment:
-      NODE_ENV: production
-      PORT: 4000
-      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:8080}
-      DATA_DIR: /data
-      DATABASE_URL: postgresql://ledens:${POSTGRES_PASSWORD:-ledens-local}@db:5432/ledens
-      JWT_SECRET: ${JWT_SECRET:-local-dev-only-change-me}
-    depends_on:
-      db:
-        condition: service_healthy
-    volumes:
-      - ledens-data:/data
-    networks:
-      - ledens-net
-
   db:
     image: postgres:16-alpine
     container_name: ledens-db
@@ -25,24 +6,49 @@ services:
     environment:
       POSTGRES_DB: ledens
       POSTGRES_USER: ledens
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-ledens-local}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-ledens_dev_password}
     ports:
-      - "${DB_PORT:-5432}:5432"
+      # Bound to localhost only, so `npm run dev` outside Docker can reach it.
+      - "127.0.0.1:${DB_HOST_PORT:-5432}:5432"
     volumes:
-      - ledens-db:/var/lib/postgresql/data
+      - ledens-pgdata:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ledens -d ledens"]
       interval: 5s
-      timeout: 3s
+      timeout: 5s
       retries: 10
+    networks:
+      - ledens-net
+
+  backend:
+    build: ./backend
+    container_name: ledens-backend
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: 4000
+      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:8080}
+      DATA_DIR: /data
+      DATABASE_URL: postgres://ledens:${POSTGRES_PASSWORD:-ledens_dev_password}@db:5432/ledens
+      # Empty until a Google Cloud Console app exists — the backend then just
+      # responds "not configured" on /api/auth/google instead of crashing.
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
+      GOOGLE_REDIRECT_URI: ${GOOGLE_REDIRECT_URI:-}
+      MICROSOFT_CLIENT_ID: ${MICROSOFT_CLIENT_ID:-}
+      MICROSOFT_CLIENT_SECRET: ${MICROSOFT_CLIENT_SECRET:-}
+      MICROSOFT_REDIRECT_URI: ${MICROSOFT_REDIRECT_URI:-}
+    volumes:
+      - ledens-data:/data
     networks:
       - ledens-net
 
   frontend:
     build:
       context: ./frontend
-      args:
-        VITE_CLERK_PUBLISHABLE_KEY: ${VITE_CLERK_PUBLISHABLE_KEY:-}
     container_name: ledens-frontend
     restart: unless-stopped
     depends_on:
@@ -58,4 +64,4 @@ networks:
 
 volumes:
   ledens-data:
-  ledens-db:
+  ledens-pgdata:
